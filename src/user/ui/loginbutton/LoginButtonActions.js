@@ -27,7 +27,8 @@ export function loginUser() {
         avatar: {
           uri: 'http://linuxdenken.de/wp-content/uploads/2015/06/admin.png'
         },
-        address: owner
+        address: owner,
+        isAdmin: true
       };
 
       return dispatchAndRedirect();

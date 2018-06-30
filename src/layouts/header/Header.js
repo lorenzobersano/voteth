@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
-import { HiddenOnlyAuth, VisibleOnlyAuth } from '../../util/wrappers.js';
+import {
+  HiddenOnlyAuth,
+  VisibleOnlyAuth,
+  VisibleOnlyAuthAdmin
+} from '../../util/wrappers.js';
 import styled from 'styled-components';
 
 // UI Components
@@ -35,6 +39,13 @@ export default class Header extends Component {
       </LoggedInLinksContainer>
     ));
 
+    const OnlyAuthAdminLinks = VisibleOnlyAuthAdmin(() => (
+      <LoggedInLinksContainer>
+        <Link to="/addCandidate">Add candidate</Link>
+        <LogoutButtonContainer />
+      </LoggedInLinksContainer>
+    ));
+
     const OnlyGuestLinks = HiddenOnlyAuth(() => <LoginButtonContainer />);
 
     return (
@@ -44,7 +55,7 @@ export default class Header extends Component {
             <HeaderTitle>votΞ</HeaderTitle>
           </Link>
           <OnlyGuestLinks />
-          <OnlyAuthLinks />
+          {<OnlyAuthAdminLinks /> || <OnlyAuthLinks />}
         </Navbar>
       </Container>
     );
