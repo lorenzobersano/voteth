@@ -1,6 +1,6 @@
 import { browserHistory } from 'react-router';
 import { uport } from './../../../util/connectors.js';
-import { getElectionAdminRights } from './../../../util/getElectionAdminRights';
+import { getElectionAdminRights } from './../../../util/electionContractInteractions';
 
 export const USER_LOGGED_IN = 'USER_LOGGED_IN';
 

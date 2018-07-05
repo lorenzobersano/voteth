@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
+
 import uploadToIPFS from './../../util/uploadToIPFS';
+import { addCandidate } from './../../util/electionContractInteractions';
 
 import Container from './../container/Container';
-
-const Label = styled.label`
-  font-size: 1em;
-  align-self: flex-start;
-`;
+import Label from './../label/Label';
 
 const TextBox = styled.input`
   outline: none;
@@ -43,9 +41,16 @@ class AddCandidateForm extends Component {
   async handleSubmit(e) {
     e.preventDefault();
 
+    const name = document.querySelector('input[name="name"]').value;
+    const party = document.querySelector('input[name="party"]').value;
+    const politicalProgram = document.querySelector(
+      'input[name="politicalProgram"]'
+    ).value;
+
     try {
       const picHash = await uploadToIPFS(buffer);
-      console.log(picHash);
+
+      await addCandidate(picHash, name, party, politicalProgram);
     } catch (error) {
       console.log(error);
     }
@@ -69,9 +74,9 @@ class AddCandidateForm extends Component {
           <Form onSubmit={this.handleSubmit}>
             <Label htmlFor="name">Name</Label>
             <TextBox type="text" name="name" required />
-            <Label htmlFor="name">Party</Label>
+            <Label htmlFor="party">Party</Label>
             <TextBox type="text" name="party" required />
-            <Label htmlFor="name">Political program</Label>
+            <Label htmlFor="politicalProgram">Political program</Label>
             <TextBox type="text" name="politicalProgram" required />
             <Label htmlFor="pic">Candidate pic</Label>
             <PhotoUploadButton

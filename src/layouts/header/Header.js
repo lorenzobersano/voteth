@@ -42,6 +42,7 @@ export default class Header extends Component {
     const OnlyAuthAdminLinks = VisibleOnlyAuthAdmin(() => (
       <LoggedInLinksContainer>
         <Link to="/addCandidate">Add candidate</Link>
+        <Link to="/setElectionTimeRange">Set election time range</Link>
         <LogoutButtonContainer />
       </LoggedInLinksContainer>
     ));

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.2;
+pragma solidity ^0.4.24;
 
 /** @title Election: keeps the state of an election and of the verified voters */
 contract Election {
@@ -40,7 +40,7 @@ contract Election {
     event CandidateDeleted(uint _position);
     
     struct Candidate {
-        bytes32 imageHash;
+        string imageHash;
         string  name;
         string  party;
         string  politicalProgram;
@@ -48,7 +48,7 @@ contract Election {
     
     struct VerificationRequest {
         address requester;
-        bytes32 votingDocumentIPFSHash;
+        string votingDocumentIPFSHash;
     }
     
     struct Verification {
@@ -58,7 +58,7 @@ contract Election {
     
     mapping (address => bool)           voterHasVoted;
     mapping (address => Verification)   verifiedVoter;
-    mapping (bytes32 => uint)           votes;
+    mapping (string => uint)           votes;
     
     VerificationRequest[]   verificationRequests;
     Candidate[]             candidates;
@@ -77,12 +77,20 @@ contract Election {
         return owner; 
     }
     
+    function setElectionStartTime(uint _startTime) public onlyOwner {
+        startTime = _startTime;
+    }
+    
+    function setElectionEndTime(uint _endTime) public onlyOwner electionIsNotOpenedYet {
+        endTime = _endTime;
+    }
+    
     /** @dev                        Adds a Candidate to the list of candidates
      *  @param _name                Name of the Candidate
      *  @param _party               Party of the Candidate
      *  @param _politicalProgram    The program of the Candidate
      */
-    function addCandidate(bytes32 _imageHash, string _name, string _party, string _politicalProgram) public onlyOwner electionIsNotOpenedYet {
+    function addCandidate(string _imageHash, string _name, string _party, string _politicalProgram) public onlyOwner electionIsNotOpenedYet {
         candidates.push(Candidate(_imageHash, _name, _party, _politicalProgram));
     }
     
@@ -92,8 +100,9 @@ contract Election {
      *  @return _party              Party of the Candidate
      *  @return _politicalProgram   The program of the Candidate
      */
-    function getCandidateAt(uint _position) public view returns(string _name, string _party, string _politicalProgram) {
+    function getCandidateAt(uint _position) public view returns(string _imageHash, string _name, string _party, string _politicalProgram) {
         return (
+            candidates[_position].imageHash,
             candidates[_position].name,
             candidates[_position].party,
             candidates[_position].politicalProgram
@@ -116,14 +125,14 @@ contract Election {
      *  @param  _candidate  The Candidate (expressed as a keccak256 hash of the name and the party) to count the votes for
      *  @return _votes      The number of votes for the Candidate
      */
-    function getVotesForCandidate(bytes32 _candidate) public view electionIsClosed returns(uint _votes) {
+    function getVotesForCandidate(string _candidate) public view electionIsClosed returns(uint _votes) {
         return votes[_candidate];
     }
     
     /** @dev                Casts a vote for a certain Candidate (expressed as a keccak256 hash of the name and the party)
      *  @param  _vote       The Candidate (expressed as a keccak256 hash of the name and the party) that gets the vote of the sender of the tx
      */
-    function vote(bytes32 _vote) public onlyVerifiedVoter electionIsOpen voterHasNotVoted {
+    function vote(string _vote) public onlyVerifiedVoter electionIsOpen voterHasNotVoted {
         votes[_vote]++;
         voterHasVoted[msg.sender] = true;
     }
@@ -131,7 +140,7 @@ contract Election {
     /** @dev                            For Election users only, creates a VerificationRequest to be able to vote              
      *  @param  _votingDocumentIPFSHash The hash of the document needed to verify the user stored on IPFS
      */
-    function requestVerification(bytes32 _votingDocumentIPFSHash) public electionIsNotOpenedYet {
+    function requestVerification(string _votingDocumentIPFSHash) public electionIsNotOpenedYet {
         verificationRequests.push(VerificationRequest(msg.sender, _votingDocumentIPFSHash));
     }
     
@@ -140,7 +149,7 @@ contract Election {
      *  @return _requester              The address of the user who created the request
      *  @return _votingDocumentIPFSHash The hash of the document needed to verify the user stored on IPFS
      */
-    function getVerificationRequestAt(uint _position) public view onlyOwner electionIsNotOpenedYet returns(address _requester, bytes32 _votingDocumentIPFSHash) {
+    function getVerificationRequestAt(uint _position) public view onlyOwner electionIsNotOpenedYet returns(address _requester, string _votingDocumentIPFSHash) {
         return (
             verificationRequests[_position].requester,
             verificationRequests[_position].votingDocumentIPFSHash

@@ -5,12 +5,16 @@ import { Provider } from 'react-redux';
 import { syncHistoryWithStore } from 'react-router-redux';
 import { UserIsAuthenticated } from './util/wrappers.js';
 
+import 'react-dates/initialize';
+import 'react-dates/lib/css/_datepicker.css';
+
 // Layouts
 import App from './App';
 import Home from './layouts/home/Home';
 import Dashboard from './layouts/dashboard/Dashboard';
 import Profile from './user/layouts/profile/Profile';
 import AddCandidateForm from './layouts/addCandidateForm/AddCandidateForm';
+import SetElectionTimeRange from './layouts/setElectionTimeRange/SetElectionTimeRange';
 
 // Redux Store
 import store from './store';
@@ -25,6 +29,10 @@ ReactDOM.render(
         <Route
           path="addCandidate"
           component={UserIsAuthenticated(AddCandidateForm)}
+        />
+        <Route
+          path="setElectionTimeRange"
+          component={UserIsAuthenticated(SetElectionTimeRange)}
         />
         <Route path="dashboard" component={UserIsAuthenticated(Dashboard)} />
         <Route path="profile" component={UserIsAuthenticated(Profile)} />
