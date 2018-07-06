@@ -17,13 +17,11 @@ web3 = new Web3(web3Provider);
 
 Election.setProvider(web3.currentProvider);
 
-let owner;
-
 export const getElectionAdminRights = () => {
   return new Promise(async (resolve, reject) => {
     try {
       const instance = await Election.deployed();
-      owner = await instance.getOwner();
+      const owner = await instance.getOwner();
 
       web3.eth.accounts.length > 0 && web3.eth.accounts[0] == owner
         ? resolve(owner)
@@ -34,12 +32,18 @@ export const getElectionAdminRights = () => {
   });
 };
 
-export const addCandidate = (picHash, name, party, politicalProgram) => {
+export const addCandidate = (
+  picHash,
+  name,
+  party,
+  politicalProgram,
+  sender
+) => {
   return new Promise(async (resolve, reject) => {
     try {
       const instance = await Election.deployed();
       await instance.addCandidate(picHash, name, party, politicalProgram, {
-        from: owner
+        from: sender
       });
 
       resolve();
@@ -75,7 +79,20 @@ export const getNumberOfCandidates = () => {
   });
 };
 
-export const setElectionTimeRange = (startTime, endTime) => {
+export const getNumberOfVerificationRequests = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const instance = await Election.deployed();
+      const numOfVerificationRequests = await instance.getNumberOfVerificationRequests();
+
+      resolve(numOfVerificationRequests);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export const setElectionTimeRange = (startTime, endTime, sender) => {
   return new Promise(async (resolve, reject) => {
     if (endTime < startTime)
       return reject('End time must be greater than start time!');
@@ -84,7 +101,7 @@ export const setElectionTimeRange = (startTime, endTime) => {
 
     try {
       instance = await Election.deployed();
-      await instance.setElectionTimeRange(startTime, endTime, { from: owner });
+      await instance.setElectionTimeRange(startTime, endTime, { from: sender });
       resolve();
     } catch (e) {
       reject(e);

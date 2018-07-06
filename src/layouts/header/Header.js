@@ -33,16 +33,18 @@ export default class Header extends Component {
   render() {
     const OnlyAuthLinks = VisibleOnlyAuth(() => (
       <LoggedInLinksContainer>
-        <Link to="/dashboard">Dashboard</Link>
-        <Link to="/profile">Profile</Link>
+        <Link to="/dashboard">Dashboard</Link> |
+        <Link to="/profile">Profile</Link> |
+        <Link to="/requestVerification">Request verification</Link>
         <LogoutButtonContainer />
       </LoggedInLinksContainer>
     ));
 
     const OnlyAuthAdminLinks = VisibleOnlyAuthAdmin(() => (
       <LoggedInLinksContainer>
-        <Link to="/addCandidate">Add candidate</Link>
-        <Link to="/setElectionTimeRange">Set election time range</Link>
+        <Link to="/addCandidate">Add candidate</Link> |
+        <Link to="/setElectionTimeRange">Set election time range</Link> |
+        <Link to="/verifyVoters">Verify voters</Link> |
         <LogoutButtonContainer />
       </LoggedInLinksContainer>
     ));
@@ -56,7 +58,8 @@ export default class Header extends Component {
             <HeaderTitle>votΞ</HeaderTitle>
           </Link>
           <OnlyGuestLinks />
-          {<OnlyAuthAdminLinks /> || <OnlyAuthLinks />}
+          <OnlyAuthAdminLinks />
+          <OnlyAuthLinks />
         </Navbar>
       </Container>
     );

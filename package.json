@@ -5,10 +5,6 @@
   },
   "version": "1.0.0",
   "devDependencies": {
-    "@storybook/addon-actions": "^3.4.8",
-    "@storybook/addon-links": "^3.4.8",
-    "@storybook/addons": "^3.4.8",
-    "@storybook/react": "^3.4.8",
     "autoprefixer": "6.5.1",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
@@ -39,7 +35,7 @@
     "eslint-friendly-formatter": "^4.0.1",
     "eslint-loader": "^1.6.0",
     "eslint-plugin-flowtype": "2.21.0",
-    "eslint-plugin-import": "^2.0.1",
+    "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-jsx-a11y": "^2.2.3",
     "eslint-plugin-no-unused-vars-rest": "^1.0.4",
     "eslint-plugin-node": "^6.0.1",
@@ -94,8 +90,6 @@
   "scripts": {
     "start": "webpack-dev-server --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
-    "test": "node scripts/test.js --env=jsdom",
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "test": "node scripts/test.js --env=jsdom"
   }
 }

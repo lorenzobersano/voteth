@@ -57,10 +57,14 @@ const ButtonStyle = {
 };
 
 export default class Candidate extends Component {
+  handleVoteClick(e) {
+    console.log(e);
+  }
+
   render() {
     return (
       <Card>
-        <Avatar src={this.props.photo} alt="Foto del candidato" />
+        <Avatar src={this.props.photo} alt="Candidate photo" />
         <Description>
           <DescriptionContainer>
             <Name>{this.props.name}</Name>
@@ -69,7 +73,11 @@ export default class Candidate extends Component {
         </Description>
         <PoliticalProgram>{this.props.politicalProgram}</PoliticalProgram>
         <Actions>
-          <Button disabled={true} style={ButtonStyle} variant="outlined">
+          <Button
+            style={ButtonStyle}
+            onClick={this.handleVoteClick}
+            variant="outlined"
+          >
             Vote
           </Button>
         </Actions>

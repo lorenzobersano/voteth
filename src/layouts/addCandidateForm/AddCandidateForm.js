@@ -33,6 +33,11 @@ let reader;
 let buffer;
 
 class AddCandidateForm extends Component {
+  constructor(props) {
+    super(props);
+    console.log(props);
+  }
+
   async handleSubmit(e) {
     e.preventDefault();
 
@@ -45,7 +50,13 @@ class AddCandidateForm extends Component {
     try {
       const picHash = await uploadToIPFS(buffer);
 
-      await addCandidate(picHash, name, party, politicalProgram);
+      await addCandidate(
+        picHash,
+        name,
+        party,
+        politicalProgram,
+        this.props.authData.address
+      );
     } catch (error) {
       console.log(error);
     }

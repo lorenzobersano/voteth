@@ -12,6 +12,8 @@ import Dashboard from './layouts/dashboard/Dashboard';
 import Profile from './user/layouts/profile/Profile';
 import AddCandidateForm from './layouts/addCandidateForm/AddCandidateForm';
 import SetElectionTimeRange from './layouts/setElectionTimeRange/SetElectionTimeRange';
+import VerifyVoters from './layouts/verifyVoters/VerifyVoters.js';
+import RequestVerification from './layouts/requestVerification/RequestVerification.js';
 
 // Redux Store
 import store from './store';
@@ -28,8 +30,16 @@ ReactDOM.render(
           component={UserIsAuthenticated(AddCandidateForm)}
         />
         <Route
+          path="verifyVoters"
+          component={UserIsAuthenticated(VerifyVoters)}
+        />
+        <Route
           path="setElectionTimeRange"
           component={UserIsAuthenticated(SetElectionTimeRange)}
+        />
+        <Route
+          path="requestVerification"
+          component={UserIsAuthenticated(RequestVerification)}
         />
         <Route path="dashboard" component={UserIsAuthenticated(Dashboard)} />
         <Route path="profile" component={UserIsAuthenticated(Profile)} />

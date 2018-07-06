@@ -25,14 +25,16 @@ export const UserIsNotAuthenticated = UserAuthWrapper({
 export const VisibleOnlyAuth = UserAuthWrapper({
   authSelector: state => state.user,
   wrapperDisplayName: 'VisibleOnlyAuth',
-  predicate: user => user.data,
+  predicate: user =>
+    user.data !== null ? (!user.data.isAdmin ? true : false) : false,
   FailureComponent: null
 });
 
 export const VisibleOnlyAuthAdmin = UserAuthWrapper({
   authSelector: state => state.user,
   wrapperDisplayName: 'VisibleOnlyAuthAdmin',
-  predicate: user => user.data,
+  predicate: user =>
+    user.data !== null ? (user.data.isAdmin ? true : false) : false,
   FailureComponent: null
 });
 

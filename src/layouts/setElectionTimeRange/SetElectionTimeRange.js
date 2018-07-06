@@ -10,8 +10,8 @@ import Form from './../form/Form';
 import { setElectionTimeRange } from './../../util/electionContractInteractions';
 
 class SetElectionTimeRange extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       startTime: new Date(),
       endTime: new Date()
@@ -31,11 +31,12 @@ class SetElectionTimeRange extends Component {
       (this.state.endTime.getTime() / 1000).toFixed(0)
     );
 
-    console.log(this.state.startTime + ' ' + this.state.endTime);
-    console.log(startTimeTimestamp + ' ' + endTimeTimestamp);
-
     try {
-      await setElectionTimeRange(startTimeTimestamp, endTimeTimestamp);
+      await setElectionTimeRange(
+        startTimeTimestamp,
+        endTimeTimestamp,
+        this.props.authData.address
+      );
     } catch (e) {
       console.log(e);
     }

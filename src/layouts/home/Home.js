@@ -37,22 +37,26 @@ class Home extends Component {
       console.log(e);
     }
 
-    for (i = 0; i < numOfCandidates; i++) {
-      try {
-        candidate = await getCandidateAt(i);
-        pic = await resolveIPFSHash(candidate[0]);
+    if (numOfCandidates == 0)
+      candidates = <Fragment>No candidates available!</Fragment>;
+    else {
+      for (i = 0; i < numOfCandidates; i++) {
+        try {
+          candidate = await getCandidateAt(i);
+          pic = await resolveIPFSHash(candidate[0]);
 
-        candidates.push(
-          <Candidate
-            name={candidate[1]}
-            party={candidate[2]}
-            politicalProgram={candidate[3]}
-            photo={pic}
-            key={i}
-          />
-        );
-      } catch (e) {
-        console.log(e);
+          candidates.push(
+            <Candidate
+              name={candidate[1]}
+              party={candidate[2]}
+              politicalProgram={candidate[3]}
+              photo={pic}
+              key={i}
+            />
+          );
+        } catch (e) {
+          console.log(e);
+        }
       }
     }
 
