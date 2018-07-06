@@ -1,50 +1,69 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { SingleDatePicker } from 'react-dates';
+import DateTimePicker from 'react-datetime-picker';
+import { Button } from '@material-ui/core';
 
 import Label from './../label/Label';
 import Container from './../container/Container';
+import Form from './../form/Form';
 
-const VerticalLayoutContainer = styled(Container)`
-  display: flex;
-  flex-direction: column;
-`;
+import { setElectionTimeRange } from './../../util/electionContractInteractions';
 
 class SetElectionTimeRange extends Component {
   constructor() {
     super();
     this.state = {
-      startDatePickerFocused: false,
-      endDatePickerFocused: false,
-      startDate: null,
-      endDate: null
+      startTime: new Date(),
+      endTime: new Date()
     };
+
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  async handleSubmit(e) {
+    e.preventDefault();
+
+    const startTimeTimestamp = parseInt(
+      (this.state.startTime.getTime() / 1000).toFixed(0)
+    );
+
+    const endTimeTimestamp = parseInt(
+      (this.state.endTime.getTime() / 1000).toFixed(0)
+    );
+
+    console.log(this.state.startTime + ' ' + this.state.endTime);
+    console.log(startTimeTimestamp + ' ' + endTimeTimestamp);
+
+    try {
+      await setElectionTimeRange(startTimeTimestamp, endTimeTimestamp);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   render() {
     return (
-      <VerticalLayoutContainer>
-        <Label>Start time</Label>
-        <SingleDatePicker
-          date={this.state.startDate}
-          onDateChange={date => this.setState({ startDate: date })}
-          focused={this.state.startDatePickerFocused}
-          onFocusChange={({ focused }) =>
-            this.setState({ startDatePickerFocused: focused })
-          }
-          id="startDatePicker"
-        />
-        <Label>End time</Label>
-        <SingleDatePicker
-          date={this.state.endDate}
-          onDateChange={date => this.setState({ endDate: date })}
-          focused={this.state.endDatePickerFocused}
-          onFocusChange={({ focused }) =>
-            this.setState({ endDatePickerFocused: focused })
-          }
-          id="endDatePicker"
-        />
-      </VerticalLayoutContainer>
+      <Container>
+        <Form onSubmit={this.handleSubmit}>
+          <Label>Start time</Label>
+          <DateTimePicker
+            name="startTimePicker"
+            onChange={date => this.setState({ startTime: date })}
+            value={this.state.startTime}
+            renderSecondHand={false}
+            required
+          />
+          <Label>End time</Label>
+          <DateTimePicker
+            name="endTimePicker"
+            onChange={date => this.setState({ endTime: date })}
+            value={this.state.endTime}
+            renderSecondHand={false}
+            required
+          />
+          <Button type="submit">confirm</Button>
+        </Form>
+      </Container>
     );
   }
 }

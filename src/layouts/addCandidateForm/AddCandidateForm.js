@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
 
-import uploadToIPFS from './../../util/uploadToIPFS';
+import { uploadToIPFS } from './../../util/ipfsUtils';
 import { addCandidate } from './../../util/electionContractInteractions';
 
 import Container from './../container/Container';
 import Label from './../label/Label';
+import Form from './../form/Form';
 
 const TextBox = styled.input`
   outline: none;
@@ -25,12 +26,6 @@ const PhotoUploadButton = styled.input`
 
 const RightAlignedButton = styled(Button)`
   align-self: flex-end;
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 `;
 
 let file;

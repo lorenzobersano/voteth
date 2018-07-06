@@ -5,9 +5,6 @@ import { Provider } from 'react-redux';
 import { syncHistoryWithStore } from 'react-router-redux';
 import { UserIsAuthenticated } from './util/wrappers.js';
 
-import 'react-dates/initialize';
-import 'react-dates/lib/css/_datepicker.css';
-
 // Layouts
 import App from './App';
 import Home from './layouts/home/Home';

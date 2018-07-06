@@ -77,12 +77,13 @@ contract Election {
         return owner; 
     }
     
-    function setElectionStartTime(uint _startTime) public onlyOwner {
+    function setElectionTimeRange(uint _startTime, uint _endTime) public onlyOwner {
         startTime = _startTime;
-    }
-    
-    function setElectionEndTime(uint _endTime) public onlyOwner electionIsNotOpenedYet {
         endTime = _endTime;
+    }
+
+    function getElectionTimeRange() public view returns(uint _startTime, uint _endTime) {
+        return (startTime, endTime);
     }
     
     /** @dev                        Adds a Candidate to the list of candidates
@@ -107,6 +108,13 @@ contract Election {
             candidates[_position].party,
             candidates[_position].politicalProgram
         );
+    }
+
+    /** @dev                        Gets the length of the list of candidates
+     *  @return _numOfCandidates    The length of the list of candidates
+     */
+    function getNumberOfCandidates() public view returns(uint _numOfCandidates) {
+        return candidates.length;
     }
     
     /** @dev                Removes the Candidate from the list of candidates at a specified index
@@ -154,6 +162,13 @@ contract Election {
             verificationRequests[_position].requester,
             verificationRequests[_position].votingDocumentIPFSHash
         );
+    }
+
+    /** @dev                        Gets the length of the list of candidates
+     *  @return _numOfCandidates    The length of the list of candidates
+     */
+    function getNumberOfVerificationRequests() public view returns(uint _numOfVerificationRequests) {
+        return verificationRequests.length;
     }
     
     /** @dev              Removes the VerificationRequest from the list of verification requests at a specified index

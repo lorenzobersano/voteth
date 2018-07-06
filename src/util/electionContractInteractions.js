@@ -49,6 +49,45 @@ export const addCandidate = (picHash, name, party, politicalProgram) => {
   });
 };
 
-export const setElectionStartTime = startTime => {
-  return new Promise(async (resolve, reject) => {});
+export const getCandidateAt = pos => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const instance = await Election.deployed();
+      const candidate = await instance.getCandidateAt(pos);
+
+      resolve(candidate);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export const getNumberOfCandidates = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const instance = await Election.deployed();
+      const numOfCandidates = await instance.getNumberOfCandidates();
+
+      resolve(numOfCandidates);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export const setElectionTimeRange = (startTime, endTime) => {
+  return new Promise(async (resolve, reject) => {
+    if (endTime < startTime)
+      return reject('End time must be greater than start time!');
+
+    let instance;
+
+    try {
+      instance = await Election.deployed();
+      await instance.setElectionTimeRange(startTime, endTime, { from: owner });
+      resolve();
+    } catch (e) {
+      reject(e);
+    }
+  });
 };

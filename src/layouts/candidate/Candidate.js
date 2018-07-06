@@ -67,15 +67,7 @@ export default class Candidate extends Component {
             <Party>{this.props.party}</Party>
           </DescriptionContainer>
         </Description>
-        <PoliticalProgram>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut molestie
-          nibh nec magna commodo, id luctus arcu volutpat. Etiam suscipit
-          suscipit velit id tempus. Sed sed lacus in nunc porta varius.
-          Vestibulum ante ipsum primis in faucibus orci luctus et ultrices
-          posuere cubilia Curae; Integer pulvinar lorem et tortor pretium
-          dapibus. Proin at est ac risus eleifend pulvinar. Phasellus lobortis
-          vel mi volutpat fringilla. Curabitur id pulvinar nisi.{' '}
-        </PoliticalProgram>
+        <PoliticalProgram>{this.props.politicalProgram}</PoliticalProgram>
         <Actions>
           <Button disabled={true} style={ButtonStyle} variant="outlined">
             Vote
