@@ -1,6 +1,7 @@
 import { browserHistory } from 'react-router';
-import { uport } from './../../../util/connectors.js';
+import { uport, uportTestChain } from './../../../util/connectors.js';
 import { getElectionAdminRights } from './../../../util/electionContractInteractions';
+import { decode } from 'mnid';
 
 export const USER_LOGGED_IN = 'USER_LOGGED_IN';
 
@@ -38,9 +39,8 @@ export function loginUser() {
 
     // Else login with uPort
     try {
-      credentials = await uport.requestCredentials({
+      credentials = await uportTestChain.requestCredentials({
         requested: ['name', 'avatar'],
-        verified: ['TesseraElettoraleVerificata'],
         notifications: true
       });
 

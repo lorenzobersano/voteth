@@ -4,7 +4,7 @@ import { Button } from '@material-ui/core';
 
 const Card = styled.div`
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto;
   grid-template-rows: auto auto auto auto;
   background: rgb(250, 250, 250);
   border: 1px solid #0000001e;
@@ -30,13 +30,17 @@ const Document = styled.img`
 `;
 
 class VerificationRequest extends Component {
+  constructor(props) {
+    super(props);
+  }
+
   render() {
     return (
       <Card>
         <Avatar />
-        <Name>Voter 1</Name>
+        <Name>{this.props.name}</Name>
         Identification Document
-        <Document />
+        <Document src={this.props.documentPic} />
         <Button disabled={true} variant="outlined">
           Approve
         </Button>

@@ -9,6 +9,10 @@ import Form from './../form/Form';
 
 import { setElectionTimeRange } from './../../util/electionContractInteractions';
 
+const StyledDateTimePicker = styled(DateTimePicker)`
+  background-color: white;
+`;
+
 class SetElectionTimeRange extends Component {
   constructor(props) {
     super(props);
@@ -47,7 +51,7 @@ class SetElectionTimeRange extends Component {
       <Container>
         <Form onSubmit={this.handleSubmit}>
           <Label>Start time</Label>
-          <DateTimePicker
+          <StyledDateTimePicker
             name="startTimePicker"
             onChange={date => this.setState({ startTime: date })}
             value={this.state.startTime}
@@ -55,7 +59,7 @@ class SetElectionTimeRange extends Component {
             required
           />
           <Label>End time</Label>
-          <DateTimePicker
+          <StyledDateTimePicker
             name="endTimePicker"
             onChange={date => this.setState({ endTime: date })}
             value={this.state.endTime}

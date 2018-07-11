@@ -35,7 +35,8 @@ let buffer;
 class AddCandidateForm extends Component {
   constructor(props) {
     super(props);
-    console.log(props);
+
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   async handleSubmit(e) {

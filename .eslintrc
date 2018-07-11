@@ -1,0 +1,8 @@
+{
+  "parser": "babel-eslint",
+  "plugins": ["react"],
+  "extends": ["airbnb-base"],
+  "rules": {
+    "no-use-before-define": "error"
+  }
+}

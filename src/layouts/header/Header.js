@@ -35,7 +35,7 @@ export default class Header extends Component {
       <LoggedInLinksContainer>
         <Link to="/dashboard">Dashboard</Link> |
         <Link to="/profile">Profile</Link> |
-        <Link to="/requestVerification">Request verification</Link>
+        <Link to="/requestVerification">Request verification</Link> |
         <LogoutButtonContainer />
       </LoggedInLinksContainer>
     ));

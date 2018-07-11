@@ -2,9 +2,9 @@ pragma solidity ^0.4.24;
 
 /** @title Election: keeps the state of an election and of the verified voters */
 contract Election {
-    uint startTime;
-    uint endTime;
-    address owner;
+    uint    public startTime;
+    uint    public endTime;
+    address public owner;
     
     modifier onlyVerifiedVoter {
         require(verifiedVoter[msg.sender].verified == true);
@@ -41,14 +41,15 @@ contract Election {
     
     struct Candidate {
         string imageHash;
-        string  name;
-        string  party;
-        string  politicalProgram;
+        string name;
+        string party;
+        string politicalProgram;
     }
     
     struct VerificationRequest {
         address requester;
-        string votingDocumentIPFSHash;
+        string  requesterName;
+        string  votingDocumentIPFSHash;
     }
     
     struct Verification {
@@ -58,23 +59,14 @@ contract Election {
     
     mapping (address => bool)           voterHasVoted;
     mapping (address => Verification)   verifiedVoter;
-    mapping (string => uint)           votes;
+    mapping (string => uint)            votes;
+    mapping (uint => string)            committedVotes;
     
     VerificationRequest[]   verificationRequests;
     Candidate[]             candidates;
 
-    // constructor (uint _startTime, uint _endTime) public {
-    //     owner = msg.sender;
-    //     startTime = _startTime;
-    //     endTime = _endTime;
-    // }
-
     constructor () public {
         owner = msg.sender;
-    }
-
-    function getOwner() public view returns (address) {
-        return owner; 
     }
     
     function setElectionTimeRange(uint _startTime, uint _endTime) public onlyOwner {
@@ -82,6 +74,10 @@ contract Election {
         endTime = _endTime;
     }
 
+    /** @dev                Gets the time range of the election
+     *  @return _startTime  The timestamp of the start time of the election
+     *  @return _endTime    The timestamp of the end time of the election
+     */
     function getElectionTimeRange() public view returns(uint _startTime, uint _endTime) {
         return (startTime, endTime);
     }
@@ -137,8 +133,8 @@ contract Election {
         return votes[_candidate];
     }
     
-    /** @dev                Casts a vote for a certain Candidate (expressed as a keccak256 hash of the name and the party)
-     *  @param  _vote       The Candidate (expressed as a keccak256 hash of the name and the party) that gets the vote of the sender of the tx
+    /** @dev          Casts a vote for a certain Candidate (expressed as a keccak256 hash of the name and the party)
+     *  @param  _vote The Candidate (expressed as a keccak256 hash of the name and the party) that gets the vote of the sender of the tx
      */
     function vote(string _vote) public onlyVerifiedVoter electionIsOpen voterHasNotVoted {
         votes[_vote]++;
@@ -148,18 +144,20 @@ contract Election {
     /** @dev                            For Election users only, creates a VerificationRequest to be able to vote              
      *  @param  _votingDocumentIPFSHash The hash of the document needed to verify the user stored on IPFS
      */
-    function requestVerification(string _votingDocumentIPFSHash) public electionIsNotOpenedYet {
-        verificationRequests.push(VerificationRequest(msg.sender, _votingDocumentIPFSHash));
+    function requestVerification(string _requesterName, string _votingDocumentIPFSHash) public electionIsNotOpenedYet {
+        verificationRequests.push(VerificationRequest(msg.sender, _requesterName, _votingDocumentIPFSHash));
     }
     
     /** @dev                            Gets the VerificationRequest from the list of verification requests at a specified index
      *  @param  _position               Position in the list of verification requests
      *  @return _requester              The address of the user who created the request
+     *  @return _requesterName          The name of the user who created the request
      *  @return _votingDocumentIPFSHash The hash of the document needed to verify the user stored on IPFS
      */
-    function getVerificationRequestAt(uint _position) public view onlyOwner electionIsNotOpenedYet returns(address _requester, string _votingDocumentIPFSHash) {
+    function getVerificationRequestAt(uint _position) public view onlyOwner electionIsNotOpenedYet returns(address _requester, string _requesterName, string _votingDocumentIPFSHash) {
         return (
             verificationRequests[_position].requester,
+            verificationRequests[_position].requesterName,
             verificationRequests[_position].votingDocumentIPFSHash
         );
     }

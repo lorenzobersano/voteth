@@ -1,4 +1,5 @@
 import Web3 from 'web3';
+import { decode, encode } from 'mnid';
 import Contract from 'truffle-contract';
 
 import electionArtifact from './../../build/contracts/Election.json';
@@ -19,9 +20,11 @@ Election.setProvider(web3.currentProvider);
 
 export const getElectionAdminRights = () => {
   return new Promise(async (resolve, reject) => {
+    Election.setProvider(web3.currentProvider);
+
     try {
       const instance = await Election.deployed();
-      const owner = await instance.getOwner();
+      const owner = await instance.owner();
 
       web3.eth.accounts.length > 0 && web3.eth.accounts[0] == owner
         ? resolve(owner)
@@ -40,6 +43,8 @@ export const addCandidate = (
   sender
 ) => {
   return new Promise(async (resolve, reject) => {
+    Election.setProvider(web3.currentProvider);
+
     try {
       const instance = await Election.deployed();
       await instance.addCandidate(picHash, name, party, politicalProgram, {
@@ -79,8 +84,25 @@ export const getNumberOfCandidates = () => {
   });
 };
 
+export const getVerificationRequestAt = pos => {
+  return new Promise(async (resolve, reject) => {
+    Election.setProvider(web3.currentProvider);
+
+    try {
+      const instance = await Election.deployed();
+      const verificationRequest = await instance.getVerificationRequestAt(pos);
+
+      resolve(verificationRequest);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 export const getNumberOfVerificationRequests = () => {
   return new Promise(async (resolve, reject) => {
+    Election.setProvider(web3.currentProvider);
+
     try {
       const instance = await Election.deployed();
       const numOfVerificationRequests = await instance.getNumberOfVerificationRequests();
@@ -92,8 +114,35 @@ export const getNumberOfVerificationRequests = () => {
   });
 };
 
+export const requestVerification = (
+  requesterName,
+  votingDocumentIPFSHash,
+  sender
+) => {
+  return new Promise(async (resolve, reject) => {
+    Election.setProvider(web3.currentProvider);
+
+    try {
+      const instance = await Election.deployed();
+      await instance.requestVerification(
+        requesterName,
+        votingDocumentIPFSHash,
+        {
+          from: sender
+        }
+      );
+
+      resolve();
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 export const setElectionTimeRange = (startTime, endTime, sender) => {
   return new Promise(async (resolve, reject) => {
+    Election.setProvider(web3.currentProvider);
+
     if (endTime < startTime)
       return reject('End time must be greater than start time!');
 

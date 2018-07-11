@@ -2,9 +2,9 @@ pragma solidity ^0.4.2;
 
 import "truffle/Assert.sol";
 import "truffle/DeployedAddresses.sol";
-import "../contracts/SimpleStorage.sol";
+import "../contracts/Election.sol";
 
-contract TestSimpleStorage {
+contract TestElection {
 
   function testItStoresAValue() public {
     SimpleStorage simpleStorage = SimpleStorage(DeployedAddresses.SimpleStorage());
