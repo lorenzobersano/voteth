@@ -9,9 +9,10 @@ module.exports = {
     },
     rinkeby: {
       host: 'localhost',
-      port: 8545,
+      port: 7545,
       network_id: '4',
-      from: '0xb52b1221862df872a8f734d3bc04e7f6371aa729'
+      from: '0xe3a259a2d2f06457f9f7ae4365e142cd58043fff',
+      gas: 4612388 // Gas limit used for deploys
     }
   }
 };

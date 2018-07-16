@@ -20,11 +20,11 @@ Election.setProvider(web3.currentProvider);
 
 export const getElectionAdminRights = () => {
   return new Promise(async (resolve, reject) => {
-    Election.setProvider(web3.currentProvider);
-
     try {
       const instance = await Election.deployed();
       const owner = await instance.owner();
+
+      console.log(owner);
 
       web3.eth.accounts.length > 0 && web3.eth.accounts[0] == owner
         ? resolve(owner)
@@ -43,8 +43,6 @@ export const addCandidate = (
   sender
 ) => {
   return new Promise(async (resolve, reject) => {
-    Election.setProvider(web3.currentProvider);
-
     try {
       const instance = await Election.deployed();
       await instance.addCandidate(picHash, name, party, politicalProgram, {
@@ -86,8 +84,6 @@ export const getNumberOfCandidates = () => {
 
 export const getVerificationRequestAt = pos => {
   return new Promise(async (resolve, reject) => {
-    Election.setProvider(web3.currentProvider);
-
     try {
       const instance = await Election.deployed();
       const verificationRequest = await instance.getVerificationRequestAt(pos);
@@ -101,8 +97,6 @@ export const getVerificationRequestAt = pos => {
 
 export const getNumberOfVerificationRequests = () => {
   return new Promise(async (resolve, reject) => {
-    Election.setProvider(web3.currentProvider);
-
     try {
       const instance = await Election.deployed();
       const numOfVerificationRequests = await instance.getNumberOfVerificationRequests();
@@ -120,8 +114,6 @@ export const requestVerification = (
   sender
 ) => {
   return new Promise(async (resolve, reject) => {
-    Election.setProvider(web3.currentProvider);
-
     try {
       const instance = await Election.deployed();
       await instance.requestVerification(
@@ -141,8 +133,6 @@ export const requestVerification = (
 
 export const setElectionTimeRange = (startTime, endTime, sender) => {
   return new Promise(async (resolve, reject) => {
-    Election.setProvider(web3.currentProvider);
-
     if (endTime < startTime)
       return reject('End time must be greater than start time!');
 

@@ -1,5 +1,5 @@
 import { browserHistory } from 'react-router';
-import { uport, uportTestChain } from './../../../util/connectors.js';
+import { uport } from './../../../util/connectors.js';
 import { getElectionAdminRights } from './../../../util/electionContractInteractions';
 import { decode } from 'mnid';
 
@@ -39,7 +39,7 @@ export function loginUser() {
 
     // Else login with uPort
     try {
-      credentials = await uportTestChain.requestCredentials({
+      credentials = await uport.requestCredentials({
         requested: ['name', 'avatar'],
         notifications: true
       });
