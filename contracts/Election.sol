@@ -154,7 +154,7 @@ contract Election {
      *  @return _requesterName          The name of the user who created the request
      *  @return _votingDocumentIPFSHash The hash of the document needed to verify the user stored on IPFS
      */
-    function getVerificationRequestAt(uint _position) public view onlyOwner electionIsNotOpenedYet returns(address _requester, string _requesterName, string _votingDocumentIPFSHash) {
+    function getVerificationRequestAt(uint _position) public view onlyOwner electionIsNotOpenedYet returns (address _requester, string _requesterName, string _votingDocumentIPFSHash) {
         return (
             verificationRequests[_position].requester,
             verificationRequests[_position].requesterName,

@@ -57,6 +57,10 @@ const ButtonStyle = {
 };
 
 export default class Candidate extends Component {
+  constructor(props) {
+    super(props);
+  }
+
   handleVoteClick(e) {
     console.log(e);
   }
@@ -77,6 +81,7 @@ export default class Candidate extends Component {
             style={ButtonStyle}
             onClick={this.handleVoteClick}
             variant="outlined"
+            disabled={!this.props.userIsVerified}
           >
             Vote
           </Button>

@@ -1,10 +1,14 @@
 import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
+import { connect } from 'react-redux';
+import { decode, isMNID } from 'mnid';
 
 import { resolveIPFSHash } from './../../util/ipfsUtils';
+
 import {
   getNumberOfCandidates,
-  getCandidateAt
+  getCandidateAt,
+  getVerificationState
 } from './../../util/electionContractInteractions';
 
 // UI Components
@@ -15,14 +19,37 @@ const CandidatesHeaderText = styled.h2`
   color: #30292f;
 `;
 
-class Home extends Component {
-  constructor() {
-    super();
-    this.state = {
-      candidates: null
-    };
+const mapStateToProps = state => {
+  return {
+    authData: state.user.data
+  };
+};
 
+class Home extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      candidates: null,
+      userIsVerified: false
+    };
+  }
+
+  componentDidMount() {
+    if (this.props.authData && isMNID(this.props.authData.address))
+      this.checkVerificationState();
     this.getAllCandidates().catch(e => console.log(e));
+  }
+
+  async checkVerificationState() {
+    try {
+      const userIsVerified = await getVerificationState(
+        decode(this.props.authData.address).address
+      );
+
+      this.setState({ userIsVerified });
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   async getAllCandidates() {
@@ -37,10 +64,10 @@ class Home extends Component {
       console.log(e);
     }
 
-    if (numOfCandidates == 0)
+    if (numOfCandidates.toNumber() === 0)
       candidates = <Fragment>No candidates available!</Fragment>;
     else {
-      for (i = 0; i < numOfCandidates; i++) {
+      for (i = 0; i < numOfCandidates.toNumber(); i++) {
         try {
           candidate = await getCandidateAt(i);
           pic = await resolveIPFSHash(candidate[0]);
@@ -52,6 +79,7 @@ class Home extends Component {
               politicalProgram={candidate[3]}
               photo={pic}
               key={i}
+              userIsVerified={this.state.userIsVerified}
             />
           );
         } catch (e) {
@@ -75,4 +103,7 @@ class Home extends Component {
   }
 }
 
-export default Home;
+export default connect(
+  mapStateToProps,
+  null
+)(Home);

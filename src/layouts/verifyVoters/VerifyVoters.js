@@ -4,6 +4,7 @@ import {
   getNumberOfVerificationRequests,
   getVerificationRequestAt
 } from '../../util/electionContractInteractions';
+import { resolveIPFSHash } from './../../util/ipfsUtils';
 
 import Container from './../container/Container';
 import VerificationRequest from './../verificationRequest/VerificationRequest';
@@ -31,21 +32,27 @@ class VerifyVoters extends Component {
       console.log(e);
     }
 
-    if (numOfVerificationRequests == 0)
+    if (numOfVerificationRequests.toNumber() === 0)
       verificationRequests = (
         <Fragment>No verification requests available!</Fragment>
       );
     else {
-      for (i = 0; i < numOfVerificationRequests; i++) {
+      for (i = 0; i < numOfVerificationRequests.toNumber(); i++) {
         try {
-          verificationRequest = await getVerificationRequestAt(i);
-          pic = await resolveIPFSHash(verificationRequest[2]);
+          verificationRequest = await getVerificationRequestAt(
+            i,
+            this.props.authData.address
+          );
+          // pic = await resolveIPFSHash(verificationRequest[2]);
 
           verificationRequests.push(
             <VerificationRequest
+              requesterAddress={verificationRequest[0]}
               name={verificationRequest[1]}
-              documentPic={pic}
+              // documentPic={pic}
               key={i}
+              index={i}
+              ownerAddress={this.props.authData.address}
             />
           );
         } catch (e) {

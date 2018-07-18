@@ -1,5 +1,5 @@
 import Web3 from 'web3';
-import { decode, encode } from 'mnid';
+import { uport } from './connectors';
 import Contract from 'truffle-contract';
 
 import electionArtifact from './../../build/contracts/Election.json';
@@ -23,8 +23,6 @@ export const getElectionAdminRights = () => {
     try {
       const instance = await Election.deployed();
       const owner = await instance.owner();
-
-      console.log(owner);
 
       web3.eth.accounts.length > 0 && web3.eth.accounts[0] == owner
         ? resolve(owner)
@@ -82,11 +80,13 @@ export const getNumberOfCandidates = () => {
   });
 };
 
-export const getVerificationRequestAt = pos => {
+export const getVerificationRequestAt = (pos, sender) => {
   return new Promise(async (resolve, reject) => {
     try {
       const instance = await Election.deployed();
-      const verificationRequest = await instance.getVerificationRequestAt(pos);
+      const verificationRequest = await instance.getVerificationRequestAt(pos, {
+        from: sender
+      });
 
       resolve(verificationRequest);
     } catch (e) {
@@ -115,7 +115,9 @@ export const requestVerification = (
 ) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const instance = await Election.deployed();
+      const instance = uport
+        .contract(electionArtifact.abi)
+        .at('0x74eba6ca25718f5eae5b2db9ca37bfa30b0168ea');
       await instance.requestVerification(
         requesterName,
         votingDocumentIPFSHash,
@@ -123,6 +125,45 @@ export const requestVerification = (
           from: sender
         }
       );
+
+      resolve();
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export const removeVerificationRequestAt = (pos, sender) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const instance = await Election.deployed();
+      await instance.removeVerificationRequestAt(pos, { from: sender });
+
+      resolve();
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export const getVerificationState = sender => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const instance = await Election.deployed();
+      const result = await instance.getVerificationState({ from: sender });
+
+      resolve(result);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export const verifyVoter = (voter, expirationDate, sender) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const instance = await Election.deployed();
+      await instance.verifyVoter(voter, expirationDate, { from: sender });
 
       resolve();
     } catch (e) {

@@ -35,7 +35,7 @@ class RequestVerification extends Component {
         await requestVerification(
           this.props.authData.name,
           picHash,
-          this.props.authData.deviceKey
+          this.props.authData.address
         );
 
         alert('Verification request sent correctly!');
