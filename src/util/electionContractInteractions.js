@@ -117,7 +117,7 @@ export const requestVerification = (
     try {
       const instance = uport
         .contract(electionArtifact.abi)
-        .at('0x74eba6ca25718f5eae5b2db9ca37bfa30b0168ea');
+        .at('0x0abad1df09f13e158ee4cc12f9f36c2e52097f1d');
       await instance.requestVerification(
         requesterName,
         votingDocumentIPFSHash,
@@ -137,9 +137,11 @@ export const removeVerificationRequestAt = (pos, sender) => {
   return new Promise(async (resolve, reject) => {
     try {
       const instance = await Election.deployed();
-      await instance.removeVerificationRequestAt(pos, { from: sender });
+      const result = await instance.removeVerificationRequestAt(pos, {
+        from: sender
+      });
 
-      resolve();
+      resolve(result);
     } catch (e) {
       reject(e);
     }
@@ -153,6 +155,19 @@ export const getVerificationState = sender => {
       const result = await instance.getVerificationState({ from: sender });
 
       resolve(result);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export const commitVote = (vote, sender) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const instance = await Election.deployed();
+      await instance.commitVote(vote, { from: sender });
+
+      resolve();
     } catch (e) {
       reject(e);
     }

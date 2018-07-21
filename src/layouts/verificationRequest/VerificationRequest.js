@@ -7,9 +7,9 @@ import {
 } from '../../util/electionContractInteractions';
 
 const Card = styled.div`
-  display: grid;
-  grid-template-columns: auto;
-  grid-template-rows: auto auto auto auto;
+  display: flex;
+  flex-direction: column;
+  /* grid-template-rows: auto auto auto auto; */
   background: rgb(250, 250, 250);
   border: 1px solid #0000001e;
   margin-bottom: 16px;
@@ -28,9 +28,16 @@ const Name = styled.h2`
   font-size: 24px;
 `;
 
+const Actions = styled.div`
+  margin-top: 0.5rem;
+  grid-column: span 2;
+  display: flex;
+  justify-content: flex-end;
+`;
+
 const Document = styled.img`
   width: 100%;
-  height: 3rem;
+  object-fit: contain;
 `;
 
 class VerificationRequest extends Component {
@@ -44,7 +51,7 @@ class VerificationRequest extends Component {
     try {
       await verifyVoter(
         this.props.requesterAddress,
-        1531916060,
+        2532197500,
         this.props.ownerAddress
       );
 
@@ -59,12 +66,12 @@ class VerificationRequest extends Component {
 
   async denyRequest() {
     try {
-      await removeVerificationRequestAt(
+      const result = await removeVerificationRequestAt(
         this.props.index,
         this.props.ownerAddress
       );
 
-      alert('Deleted!');
+      if (result) alert('Deleted!');
     } catch (e) {
       console.log(e);
     }
@@ -73,16 +80,17 @@ class VerificationRequest extends Component {
   render() {
     return (
       <Card>
-        <Avatar />
         <Name>{this.props.name}</Name>
-        Identification Document
+        <p>Identification Document</p>
         <Document src={this.props.documentPic} />
-        <Button variant="outlined" onClick={this.approveRequest}>
-          Approve
-        </Button>
-        <Button variant="outlined" onClick={this.denyRequest}>
-          Deny
-        </Button>
+        <Actions>
+          <Button variant="outlined" onClick={this.approveRequest}>
+            Approve
+          </Button>
+          <Button variant="outlined" onClick={this.denyRequest}>
+            Deny
+          </Button>
+        </Actions>
       </Card>
     );
   }

@@ -86,9 +86,12 @@
     "redux-auth-wrapper": "^1.0.0",
     "redux-thunk": "^2.2.0",
     "styled-components": "^3.2.6",
+    "sweetalert2": "^7.25.6",
+    "truffle-hdwallet-provider": "0.0.5",
     "uport": "^0.6.2",
     "uport-connect": "^0.7.3",
-    "uport-identity": "^2.0.1"
+    "uport-identity": "^2.0.1",
+    "web3-utils": "^1.0.0-beta.34"
   },
   "scripts": {
     "start": "webpack-dev-server --config webpack.dev.js",

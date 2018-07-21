@@ -30,7 +30,8 @@ class Home extends Component {
     super(props);
     this.state = {
       candidates: null,
-      userIsVerified: false
+      userIsVerified: false,
+      userAddress: null
     };
   }
 
@@ -46,7 +47,12 @@ class Home extends Component {
         decode(this.props.authData.address).address
       );
 
-      this.setState({ userIsVerified });
+      console.log(userIsVerified);
+
+      this.setState({
+        userIsVerified,
+        userAddress: this.props.authData.address
+      });
     } catch (e) {
       console.log(e);
     }
@@ -80,6 +86,7 @@ class Home extends Component {
               photo={pic}
               key={i}
               userIsVerified={this.state.userIsVerified}
+              voterAddress={this.state.userAddress}
             />
           );
         } catch (e) {

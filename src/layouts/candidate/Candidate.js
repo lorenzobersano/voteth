@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
+import { soliditySha3 } from 'web3-utils';
+import swal from 'sweetalert2';
 
 // UI Components
 const Card = styled.div`
@@ -59,10 +61,27 @@ const ButtonStyle = {
 export default class Candidate extends Component {
   constructor(props) {
     super(props);
+    this.handleVoteClick = this.handleVoteClick.bind(this);
   }
 
-  handleVoteClick(e) {
-    console.log(e);
+  async handleVoteClick() {
+    const { value: password } = await swal({
+      title: "Enter a secret password to cast the vote: don't forget it!",
+      input: 'password',
+      inputPlaceholder: 'Enter your password',
+      inputAttributes: {
+        autocapitalize: 'off',
+        autocorrect: 'off'
+      }
+    });
+
+    if (password) {
+      const voteHash = soliditySha3(
+        `${this.props.name}-${this.props.voterAddress}-${password}`
+      );
+
+      console.log(voteHash);
+    }
   }
 
   render() {

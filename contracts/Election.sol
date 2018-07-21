@@ -1,7 +1,11 @@
 pragma solidity ^0.4.24;
 
+import "./strings.sol";
+
 /** @title Election: keeps the state of an election and of the verified voters */
 contract Election {
+    using strings for *;
+    
     uint    public startTime;
     uint    public endTime;
     address public owner;
@@ -36,9 +40,6 @@ contract Election {
         _;
     }
     
-    event VerificationRequestDeleted(uint _position);
-    event CandidateDeleted(uint _position);
-    
     struct Candidate {
         string imageHash;
         string name;
@@ -59,8 +60,8 @@ contract Election {
     
     mapping (address => bool)           voterHasVoted;
     mapping (address => Verification)   verifiedVoter;
-    mapping (string => uint)            votes;
-    mapping (uint => string)            committedVotes;
+    mapping (string => uint)            revealedVotes;
+    mapping (address => bytes32)        committedVotes;
     
     VerificationRequest[]   verificationRequests;
     Candidate[]             candidates;
@@ -115,30 +116,40 @@ contract Election {
     
     /** @dev                Removes the Candidate from the list of candidates at a specified index
      *  @param  _position   Position in the list of candidates
+     *  @return _result     Always true
      */
-    function removeCandidateAt(uint _position) public onlyOwner electionIsNotOpenedYet {
+    function removeCandidateAt(uint _position) public onlyOwner electionIsNotOpenedYet returns (bool _result) {
         for (uint i = _position; i < candidates.length - 1; i++){
             candidates[i] = candidates[i + 1];
         }
     
         candidates.length--;
-        emit CandidateDeleted(_position);
+        return true;
     }
 
     /** @dev                Gets the count of the votes for a certain Candidate
      *  @param  _candidate  The Candidate (expressed as a keccak256 hash of the name and the party) to count the votes for
      *  @return _votes      The number of votes for the Candidate
      */
-    function getVotesForCandidate(string _candidate) public view electionIsClosed returns(uint _votes) {
-        return votes[_candidate];
+    function getVotesForCandidate(string _candidate) public view electionIsClosed returns (uint _votes) {
+        return revealedVotes[_candidate];
     }
     
     /** @dev          Casts a vote for a certain Candidate (expressed as a keccak256 hash of the name and the party)
      *  @param  _vote The Candidate (expressed as a keccak256 hash of the name and the party) that gets the vote of the sender of the tx
      */
-    function vote(string _vote) public onlyVerifiedVoter electionIsOpen voterHasNotVoted {
-        votes[_vote]++;
+    function commitVote(bytes32 _vote) public onlyVerifiedVoter electionIsOpen voterHasNotVoted {
+        committedVotes[msg.sender] = _vote;
         voterHasVoted[msg.sender] = true;
+    }
+
+    /** @dev          Casts a vote for a certain Candidate (expressed as a keccak256 hash of the name and the party)
+     *  @param  _vote The Candidate (expressed as a keccak256 hash of the name and the party) that gets the vote of the sender of the tx
+     */
+    function revealVote(string _vote, bytes32 _committedVote) public onlyVerifiedVoter electionIsClosed {
+        require(committedVotes[msg.sender] == _committedVote && keccak256(_vote) == _committedVote);
+        string memory votedCandidateName = _vote.toSlice().split("-".toSlice()).toString();
+        revealedVotes[votedCandidateName]++;
     }
     
     /** @dev                            For Election users only, creates a VerificationRequest to be able to vote              
@@ -171,14 +182,15 @@ contract Election {
     
     /** @dev              Removes the VerificationRequest from the list of verification requests at a specified index
      *  @param  _position Position in the list of verification requests
+     *  @return _result   Always true
      */
-    function removeVerificationRequestAt(uint _position) public onlyOwner {
+    function removeVerificationRequestAt(uint _position) public onlyOwner returns (bool _result) {
         for (uint i = _position; i < verificationRequests.length - 1; i++){
             verificationRequests[i] = verificationRequests[i+1];
         }
     
         verificationRequests.length--;
-        emit VerificationRequestDeleted(_position);
+        return true;
     }
     
     /** @dev                        Checks if the msg.sender has been verified

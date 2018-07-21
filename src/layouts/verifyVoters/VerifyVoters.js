@@ -16,7 +16,9 @@ class VerifyVoters extends Component {
     this.state = {
       verificationRequests: null
     };
+  }
 
+  componentDidMount() {
     this.getAllVerificationRequests().catch(e => console.log(e));
   }
 
@@ -43,13 +45,21 @@ class VerifyVoters extends Component {
             i,
             this.props.authData.address
           );
-          // pic = await resolveIPFSHash(verificationRequest[2]);
+          pic = await resolveIPFSHash(
+            verificationRequest[2].substring(
+              1,
+              verificationRequest[2].length - 1
+            )
+          );
 
           verificationRequests.push(
             <VerificationRequest
               requesterAddress={verificationRequest[0]}
-              name={verificationRequest[1]}
-              // documentPic={pic}
+              name={verificationRequest[1].substring(
+                1,
+                verificationRequest[1].length - 1
+              )}
+              documentPic={pic}
               key={i}
               index={i}
               ownerAddress={this.props.authData.address}
