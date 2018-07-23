@@ -58,10 +58,10 @@ contract Election {
         uint expirationDate;
     }
     
-    mapping (address => bool)           voterHasVoted;
-    mapping (address => Verification)   verifiedVoter;
-    mapping (string => uint)            revealedVotes;
-    mapping (address => bytes32)        committedVotes;
+    mapping (address => bool)           public  voterHasVoted;
+    mapping (address => Verification)           verifiedVoter;
+    mapping (string => uint)                    revealedVotes;
+    mapping (address => bytes32)                committedVotes;
     
     VerificationRequest[]   verificationRequests;
     Candidate[]             candidates;

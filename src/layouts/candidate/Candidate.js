@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Button } from '@material-ui/core';
 import { soliditySha3 } from 'web3-utils';
 import swal from 'sweetalert2';
+import { commitVote } from '../../util/electionContractInteractions';
 
 // UI Components
 const Card = styled.div`
@@ -61,6 +62,8 @@ const ButtonStyle = {
 export default class Candidate extends Component {
   constructor(props) {
     super(props);
+    console.log(props);
+
     this.handleVoteClick = this.handleVoteClick.bind(this);
   }
 
@@ -81,6 +84,18 @@ export default class Candidate extends Component {
       );
 
       console.log(voteHash);
+
+      try {
+        await commitVote(voteHash, this.props.voterAddress);
+
+        swal({
+          type: 'success',
+          title: 'Vote successfully committed',
+          text: 'Come back later to confirm your vote!'
+        });
+      } catch (error) {
+        console.log(error);
+      }
     }
   }
 
@@ -100,9 +115,14 @@ export default class Candidate extends Component {
             style={ButtonStyle}
             onClick={this.handleVoteClick}
             variant="outlined"
-            disabled={!this.props.userIsVerified}
+            disabled={!this.props.userIsVerified || this.props.voterHasVoted}
           >
-            Vote
+            {parseInt(new Date().getTime() / 1000).toFixed(0) <
+            this.props.electionEndTime ? (
+              <span>Commit vote</span>
+            ) : (
+              <span>Reveal vote</span>
+            )}
           </Button>
         </Actions>
       </Card>

@@ -5,6 +5,7 @@ import Contract from 'truffle-contract';
 import electionArtifact from './../../build/contracts/Election.json';
 
 const Election = Contract(electionArtifact);
+const electionAddress = '0x59237e05e5b62aae643e58e17408ab46ec4c36d5';
 let web3Provider;
 
 if (typeof web3 !== 'undefined') {
@@ -115,9 +116,7 @@ export const requestVerification = (
 ) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const instance = uport
-        .contract(electionArtifact.abi)
-        .at('0x0abad1df09f13e158ee4cc12f9f36c2e52097f1d');
+      const instance = uport.contract(electionArtifact.abi).at(electionAddress);
       await instance.requestVerification(
         requesterName,
         votingDocumentIPFSHash,
@@ -161,11 +160,26 @@ export const getVerificationState = sender => {
   });
 };
 
-export const commitVote = (vote, sender) => {
+export const checkIfVoterHasVoted = sender => {
   return new Promise(async (resolve, reject) => {
     try {
       const instance = await Election.deployed();
-      await instance.commitVote(vote, { from: sender });
+      const result = await instance.voterHasVoted(sender);
+
+      resolve(result);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export const commitVote = (vote, sender) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const instance = uport.contract(electionArtifact.abi).at(electionAddress);
+      await instance.commitVote(vote, {
+        from: sender
+      });
 
       resolve();
     } catch (e) {
@@ -198,6 +212,19 @@ export const setElectionTimeRange = (startTime, endTime, sender) => {
       instance = await Election.deployed();
       await instance.setElectionTimeRange(startTime, endTime, { from: sender });
       resolve();
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export const getElectionTimeRange = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const instance = await Election.deployed();
+      const result = await instance.getElectionTimeRange();
+
+      resolve(result);
     } catch (e) {
       reject(e);
     }

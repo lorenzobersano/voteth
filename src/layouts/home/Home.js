@@ -8,7 +8,9 @@ import { resolveIPFSHash } from './../../util/ipfsUtils';
 import {
   getNumberOfCandidates,
   getCandidateAt,
-  getVerificationState
+  getVerificationState,
+  checkIfVoterHasVoted,
+  getElectionTimeRange
 } from './../../util/electionContractInteractions';
 
 // UI Components
@@ -31,31 +33,56 @@ class Home extends Component {
     this.state = {
       candidates: null,
       userIsVerified: false,
-      userAddress: null
+      userAddress: null,
+      electionTimeRange: []
     };
   }
 
+  isCancelled = false;
+
   componentDidMount() {
     if (this.props.authData && isMNID(this.props.authData.address))
-      this.checkVerificationState();
+      this.checkVoterState();
+    this.getElectionTimeRange();
     this.getAllCandidates().catch(e => console.log(e));
   }
 
-  async checkVerificationState() {
+  componentWillUnmount() {
+    this.isCancelled = true;
+  }
+
+  async checkVoterState() {
     try {
       const userIsVerified = await getVerificationState(
         decode(this.props.authData.address).address
       );
 
-      console.log(userIsVerified);
+      const voterHasVoted = await checkIfVoterHasVoted(
+        decode(this.props.authData.address).address
+      );
 
-      this.setState({
-        userIsVerified,
-        userAddress: this.props.authData.address
-      });
+      console.log(voterHasVoted);
+
+      !this.isCancelled &&
+        this.setState({
+          userIsVerified,
+          voterHasVoted,
+          userAddress: this.props.authData.address
+        });
     } catch (e) {
       console.log(e);
     }
+  }
+
+  async getElectionTimeRange() {
+    let electionTimeRange = [];
+    try {
+      electionTimeRange = await getElectionTimeRange();
+    } catch (e) {
+      console.log(e);
+    }
+
+    !this.isCancelled && this.setState({ electionTimeRange });
   }
 
   async getAllCandidates() {
@@ -86,7 +113,10 @@ class Home extends Component {
               photo={pic}
               key={i}
               userIsVerified={this.state.userIsVerified}
+              voterHasVoted={this.state.voterHasVoted}
               voterAddress={this.state.userAddress}
+              electionStartTime={this.state.electionTimeRange[0].toNumber()}
+              electionEndTime={this.state.electionTimeRange[1].toNumber()}
             />
           );
         } catch (e) {
@@ -95,7 +125,7 @@ class Home extends Component {
       }
     }
 
-    this.setState({ candidates });
+    !this.isCancelled && this.setState({ candidates });
   }
 
   render() {
