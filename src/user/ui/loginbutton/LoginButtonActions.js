@@ -62,7 +62,7 @@ export function loginUser() {
         );
       }
 
-      return browserHistory.push('/dashboard');
+      return browserHistory.push('/');
     }
   };
 }

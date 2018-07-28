@@ -8,7 +8,7 @@ import { UserIsAuthenticated } from './util/wrappers.js';
 // Layouts
 import App from './App';
 import Home from './layouts/home/Home';
-import Dashboard from './layouts/dashboard/Dashboard';
+import Results from './layouts/results/Results';
 import Profile from './user/layouts/profile/Profile';
 import AddCandidateForm from './layouts/addCandidateForm/AddCandidateForm';
 import SetElectionTimeRange from './layouts/setElectionTimeRange/SetElectionTimeRange';
@@ -41,7 +41,7 @@ ReactDOM.render(
           path="requestVerification"
           component={UserIsAuthenticated(RequestVerification)}
         />
-        <Route path="dashboard" component={UserIsAuthenticated(Dashboard)} />
+        <Route path="results" component={UserIsAuthenticated(Results)} />
         <Route path="profile" component={UserIsAuthenticated(Profile)} />
       </Route>
     </Router>

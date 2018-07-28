@@ -18,8 +18,14 @@ class VerifyVoters extends Component {
     };
   }
 
+  isCancelled = false;
+
   componentDidMount() {
     this.getAllVerificationRequests().catch(e => console.log(e));
+  }
+
+  componentWillUnmount() {
+    this.isCancelled = true;
   }
 
   async getAllVerificationRequests() {
@@ -71,12 +77,13 @@ class VerifyVoters extends Component {
       }
     }
 
-    this.setState({ verificationRequests });
+    !this.isCancelled && this.setState({ verificationRequests });
   }
 
   render() {
     return (
       <Container>
+        <h2>Verification Requests</h2>
         {this.state.verificationRequests
           ? this.state.verificationRequests
           : 'Loading...'}

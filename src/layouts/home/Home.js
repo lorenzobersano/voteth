@@ -9,7 +9,8 @@ import {
   getNumberOfCandidates,
   getCandidateAt,
   getVerificationState,
-  checkIfVoterHasVoted,
+  checkIfVoterHasCommittedVote,
+  checkIfVoterHasRevealedVote,
   getElectionTimeRange
 } from './../../util/electionContractInteractions';
 
@@ -33,8 +34,9 @@ class Home extends Component {
     this.state = {
       candidates: null,
       userIsVerified: false,
-      userAddress: null,
-      electionTimeRange: []
+      voterHasCommittedVote: false,
+      voterHasRevealedVote: false,
+      userAddress: null
     };
   }
 
@@ -44,7 +46,6 @@ class Home extends Component {
     if (this.props.authData && isMNID(this.props.authData.address))
       this.checkVoterState();
     this.getElectionTimeRange();
-    this.getAllCandidates().catch(e => console.log(e));
   }
 
   componentWillUnmount() {
@@ -57,16 +58,19 @@ class Home extends Component {
         decode(this.props.authData.address).address
       );
 
-      const voterHasVoted = await checkIfVoterHasVoted(
+      const voterHasCommittedVote = await checkIfVoterHasCommittedVote(
         decode(this.props.authData.address).address
       );
 
-      console.log(voterHasVoted);
+      const voterHasRevealedVote = await checkIfVoterHasRevealedVote(
+        decode(this.props.authData.address).address
+      );
 
       !this.isCancelled &&
         this.setState({
           userIsVerified,
-          voterHasVoted,
+          voterHasCommittedVote,
+          voterHasRevealedVote,
           userAddress: this.props.authData.address
         });
     } catch (e) {
@@ -78,14 +82,13 @@ class Home extends Component {
     let electionTimeRange = [];
     try {
       electionTimeRange = await getElectionTimeRange();
+      this.getAllCandidates(electionTimeRange);
     } catch (e) {
       console.log(e);
     }
-
-    !this.isCancelled && this.setState({ electionTimeRange });
   }
 
-  async getAllCandidates() {
+  async getAllCandidates(electionTimeRange) {
     let numOfCandidates;
     let i;
     let candidate, pic;
@@ -113,10 +116,11 @@ class Home extends Component {
               photo={pic}
               key={i}
               userIsVerified={this.state.userIsVerified}
-              voterHasVoted={this.state.voterHasVoted}
+              voterHasCommittedVote={this.state.voterHasCommittedVote}
+              voterHasRevealedVote={this.state.voterHasRevealedVote}
               voterAddress={this.state.userAddress}
-              electionStartTime={this.state.electionTimeRange[0].toNumber()}
-              electionEndTime={this.state.electionTimeRange[1].toNumber()}
+              electionStartTime={electionTimeRange[0].toNumber()}
+              electionEndTime={electionTimeRange[1].toNumber()}
             />
           );
         } catch (e) {

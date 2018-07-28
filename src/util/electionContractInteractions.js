@@ -5,7 +5,7 @@ import Contract from 'truffle-contract';
 import electionArtifact from './../../build/contracts/Election.json';
 
 const Election = Contract(electionArtifact);
-const electionAddress = '0x59237e05e5b62aae643e58e17408ab46ec4c36d5';
+const electionAddress = '0x25578cfafe6672be5d9d7e1322d4aff54a719ff3';
 let web3Provider;
 
 if (typeof web3 !== 'undefined') {
@@ -24,6 +24,17 @@ export const getElectionAdminRights = () => {
     try {
       const instance = await Election.deployed();
       const owner = await instance.owner();
+
+      const eventContract = web3.eth
+        .contract(electionArtifact.abi)
+        .at(electionAddress);
+
+      const events = eventContract.allEvents({
+        fromBlock: 0,
+        toBlock: 'latest'
+      });
+
+      events.get((err, res) => console.log(res));
 
       web3.eth.accounts.length > 0 && web3.eth.accounts[0] == owner
         ? resolve(owner)
@@ -62,6 +73,21 @@ export const getCandidateAt = pos => {
       const candidate = await instance.getCandidateAt(pos);
 
       resolve(candidate);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export const getVotesForCandidate = candidate => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      console.log(candidate);
+
+      const instance = await Election.deployed();
+      const votes = await instance.getVotesForCandidate(candidate);
+
+      resolve(votes.toNumber());
     } catch (e) {
       reject(e);
     }
@@ -151,7 +177,7 @@ export const getVerificationState = sender => {
   return new Promise(async (resolve, reject) => {
     try {
       const instance = await Election.deployed();
-      const result = await instance.getVerificationState({ from: sender });
+      const result = await instance.verifiedVoter(sender);
 
       resolve(result);
     } catch (e) {
@@ -160,11 +186,24 @@ export const getVerificationState = sender => {
   });
 };
 
-export const checkIfVoterHasVoted = sender => {
+export const checkIfVoterHasCommittedVote = sender => {
   return new Promise(async (resolve, reject) => {
     try {
       const instance = await Election.deployed();
-      const result = await instance.voterHasVoted(sender);
+      const result = await instance.voterHasCommittedVote(sender);
+
+      resolve(result);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export const checkIfVoterHasRevealedVote = sender => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const instance = await Election.deployed();
+      const result = await instance.voterHasRevealedVote(sender);
 
       resolve(result);
     } catch (e) {
@@ -188,11 +227,30 @@ export const commitVote = (vote, sender) => {
   });
 };
 
-export const verifyVoter = (voter, expirationDate, sender) => {
+export const revealVote = (vote, voteHash, sender) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const instance = uport.contract(electionArtifact.abi).at(electionAddress);
+      const result = await instance.revealVote(vote, voteHash, {
+        from: sender
+      });
+
+      console.log(result.logs);
+
+      resolve(result);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export const verifyVoter = (voter, positionInRequestersArray, sender) => {
   return new Promise(async (resolve, reject) => {
     try {
       const instance = await Election.deployed();
-      await instance.verifyVoter(voter, expirationDate, { from: sender });
+      await instance.verifyVoter(voter, positionInRequestersArray, {
+        from: sender
+      });
 
       resolve();
     } catch (e) {

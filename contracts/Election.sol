@@ -11,7 +11,7 @@ contract Election {
     address public owner;
     
     modifier onlyVerifiedVoter {
-        require(verifiedVoter[msg.sender].verified == true);
+        require(verifiedVoter[msg.sender] == true);
         _;
     }
     
@@ -35,10 +35,19 @@ contract Election {
         _;
     }
     
-    modifier voterHasNotVoted {
-        require(voterHasVoted[msg.sender] == false);
+    modifier voterHasNotCommittedVote {
+        require(voterHasCommittedVote[msg.sender] == false);
         _;
     }
+
+    modifier voterHasNotRevealedVote {
+        require(voterHasRevealedVote[msg.sender] == false);
+        _;
+    }
+
+    event VoteCommitted(address _voter, bytes32 _hashedVote);
+    event VoteRevealed(address _voter, string _vote, uint _votesForCandidate);
+    event VerificationRequested(address _requester);
     
     struct Candidate {
         string imageHash;
@@ -53,15 +62,11 @@ contract Election {
         string  votingDocumentIPFSHash;
     }
     
-    struct Verification {
-        bool verified;
-        uint expirationDate;
-    }
-    
-    mapping (address => bool)           public  voterHasVoted;
-    mapping (address => Verification)           verifiedVoter;
-    mapping (string => uint)                    revealedVotes;
-    mapping (address => bytes32)                committedVotes;
+    mapping (address => bool)       public  voterHasCommittedVote;
+    mapping (address => bool)       public  voterHasRevealedVote;
+    mapping (address => bool)       public  verifiedVoter;
+    mapping (string => uint)                revealedVotes;
+    mapping (address => bytes32)    public  committedVotes;
     
     VerificationRequest[]   verificationRequests;
     Candidate[]             candidates;
@@ -118,13 +123,12 @@ contract Election {
      *  @param  _position   Position in the list of candidates
      *  @return _result     Always true
      */
-    function removeCandidateAt(uint _position) public onlyOwner electionIsNotOpenedYet returns (bool _result) {
+    function removeCandidateAt(uint _position) public onlyOwner electionIsNotOpenedYet {
         for (uint i = _position; i < candidates.length - 1; i++){
             candidates[i] = candidates[i + 1];
         }
     
         candidates.length--;
-        return true;
     }
 
     /** @dev                Gets the count of the votes for a certain Candidate
@@ -138,18 +142,26 @@ contract Election {
     /** @dev          Casts a vote for a certain Candidate (expressed as a keccak256 hash of the name and the party)
      *  @param  _vote The Candidate (expressed as a keccak256 hash of the name and the party) that gets the vote of the sender of the tx
      */
-    function commitVote(bytes32 _vote) public onlyVerifiedVoter electionIsOpen voterHasNotVoted {
+    function commitVote(bytes32 _vote) public onlyVerifiedVoter electionIsOpen voterHasNotCommittedVote {
         committedVotes[msg.sender] = _vote;
-        voterHasVoted[msg.sender] = true;
+        voterHasCommittedVote[msg.sender] = true;
+
+        emit VoteCommitted(msg.sender, _vote);
     }
 
     /** @dev          Casts a vote for a certain Candidate (expressed as a keccak256 hash of the name and the party)
      *  @param  _vote The Candidate (expressed as a keccak256 hash of the name and the party) that gets the vote of the sender of the tx
+     *  @param  _committedVote The Candidate (expressed as a keccak256 hash of the name and the party) that gets the vote of the sender of the tx
      */
-    function revealVote(string _vote, bytes32 _committedVote) public onlyVerifiedVoter electionIsClosed {
-        require(committedVotes[msg.sender] == _committedVote && keccak256(_vote) == _committedVote);
-        string memory votedCandidateName = _vote.toSlice().split("-".toSlice()).toString();
-        revealedVotes[votedCandidateName]++;
+    function revealVote(string _vote, bytes32 _committedVote) public onlyVerifiedVoter electionIsClosed voterHasNotRevealedVote {
+        require(committedVotes[msg.sender] == _committedVote);
+        require(keccak256(abi.encodePacked(_vote)) == _committedVote);
+
+        string memory _votedCandidateName = _vote.toSlice().split("-".toSlice()).toString();
+        revealedVotes[_votedCandidateName]++;
+        voterHasRevealedVote[msg.sender] = true;
+
+        emit VoteRevealed(msg.sender, _votedCandidateName, revealedVotes[_votedCandidateName]);
     }
     
     /** @dev                            For Election users only, creates a VerificationRequest to be able to vote              
@@ -157,6 +169,8 @@ contract Election {
      */
     function requestVerification(string _requesterName, string _votingDocumentIPFSHash) public electionIsNotOpenedYet {
         verificationRequests.push(VerificationRequest(msg.sender, _requesterName, _votingDocumentIPFSHash));
+
+        emit VerificationRequested(msg.sender);
     }
     
     /** @dev                            Gets the VerificationRequest from the list of verification requests at a specified index
@@ -184,29 +198,19 @@ contract Election {
      *  @param  _position Position in the list of verification requests
      *  @return _result   Always true
      */
-    function removeVerificationRequestAt(uint _position) public onlyOwner returns (bool _result) {
-        for (uint i = _position; i < verificationRequests.length - 1; i++){
-            verificationRequests[i] = verificationRequests[i+1];
+    function removeVerificationRequestAt(uint _position) public onlyOwner {
+        for (uint i = _position; i < verificationRequests.length - 1; i++) {
+            verificationRequests[i] = verificationRequests[i + 1];
         }
     
         verificationRequests.length--;
-        return true;
     }
-    
-    /** @dev                        Checks if the msg.sender has been verified
-     *  @return _verificationState  The state of the verification process
-     */
-    function getVerificationState() public view returns (bool _verificationState) {
-        return verifiedVoter[msg.sender].verified;
-    } 
     
     /** @dev                    Verifies a voter with a specified address
      *  @param  _voter          The address of the voter to be verified
-     *  @param  _expirationDate The expiration date of the document given by user
      */
-    function verifyVoter(address _voter, uint _expirationDate) public onlyOwner electionIsNotOpenedYet {
-        require(_expirationDate > endTime);
-        verifiedVoter[_voter].verified = true;
-        verifiedVoter[_voter].expirationDate = _expirationDate;
+    function verifyVoter(address _voter, uint _pos) public onlyOwner electionIsNotOpenedYet {
+        verifiedVoter[_voter] = true;
+        removeVerificationRequestAt(_pos);
     }
 }

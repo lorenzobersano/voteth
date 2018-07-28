@@ -33,7 +33,7 @@ export default class Header extends Component {
   render() {
     const OnlyAuthLinks = VisibleOnlyAuth(() => (
       <LoggedInLinksContainer>
-        <Link to="/dashboard">Dashboard</Link> |
+        <Link to="/results">Results</Link> |
         <Link to="/profile">Profile</Link> |
         <Link to="/requestVerification">Request verification</Link> |
         <LogoutButtonContainer />

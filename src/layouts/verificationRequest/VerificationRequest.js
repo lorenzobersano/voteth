@@ -51,11 +51,6 @@ class VerificationRequest extends Component {
     try {
       await verifyVoter(
         this.props.requesterAddress,
-        2532197500,
-        this.props.ownerAddress
-      );
-
-      await removeVerificationRequestAt(
         this.props.index,
         this.props.ownerAddress
       );

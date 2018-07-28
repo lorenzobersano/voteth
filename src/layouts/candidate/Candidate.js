@@ -3,7 +3,10 @@ import styled from 'styled-components';
 import { Button } from '@material-ui/core';
 import { soliditySha3 } from 'web3-utils';
 import swal from 'sweetalert2';
-import { commitVote } from '../../util/electionContractInteractions';
+import {
+  commitVote,
+  revealVote
+} from '../../util/electionContractInteractions';
 
 // UI Components
 const Card = styled.div`
@@ -64,12 +67,13 @@ export default class Candidate extends Component {
     super(props);
     console.log(props);
 
-    this.handleVoteClick = this.handleVoteClick.bind(this);
+    this.handleVoteCommitClick = this.handleVoteCommitClick.bind(this);
+    this.handleVoteRevealClick = this.handleVoteRevealClick.bind(this);
   }
 
-  async handleVoteClick() {
+  async handleVoteCommitClick() {
     const { value: password } = await swal({
-      title: "Enter a secret password to cast the vote: don't forget it!",
+      title: "Enter a secret password to commit the vote: don't forget it!",
       input: 'password',
       inputPlaceholder: 'Enter your password',
       inputAttributes: {
@@ -80,7 +84,7 @@ export default class Candidate extends Component {
 
     if (password) {
       const voteHash = soliditySha3(
-        `${this.props.name}-${this.props.voterAddress}-${password}`
+        `'${this.props.name}-${this.props.voterAddress}-${password}'`
       );
 
       console.log(voteHash);
@@ -99,6 +103,46 @@ export default class Candidate extends Component {
     }
   }
 
+  async handleVoteRevealClick() {
+    const { value: password } = await swal({
+      title: 'Enter the secret password you entered before to reveal the vote',
+      input: 'password',
+      inputPlaceholder: 'Enter your password',
+      inputAttributes: {
+        autocapitalize: 'off',
+        autocorrect: 'off'
+      }
+    });
+
+    if (password) {
+      const vote = `${this.props.name}-${this.props.voterAddress}-${password}`;
+      const voteHash = soliditySha3(`'${vote}'`);
+
+      console.log(vote);
+      console.log(voteHash);
+
+      try {
+        const result = await revealVote(
+          vote,
+          voteHash,
+          this.props.voterAddress
+        );
+
+        swal({
+          type: 'success',
+          title: 'Vote successfully revealed',
+          text: 'Thank you for your vote!'
+        });
+      } catch (error) {
+        swal({
+          type: 'error',
+          title: 'Ooops, something went wrong!',
+          text: error
+        });
+      }
+    }
+  }
+
   render() {
     return (
       <Card>
@@ -111,19 +155,34 @@ export default class Candidate extends Component {
         </Description>
         <PoliticalProgram>{this.props.politicalProgram}</PoliticalProgram>
         <Actions>
-          <Button
-            style={ButtonStyle}
-            onClick={this.handleVoteClick}
-            variant="outlined"
-            disabled={!this.props.userIsVerified || this.props.voterHasVoted}
-          >
-            {parseInt(new Date().getTime() / 1000).toFixed(0) <
-            this.props.electionEndTime ? (
-              <span>Commit vote</span>
-            ) : (
-              <span>Reveal vote</span>
-            )}
-          </Button>
+          {parseInt(new Date().getTime() / 1000).toFixed(0) <
+          this.props.electionEndTime ? (
+            <Button
+              style={ButtonStyle}
+              onClick={this.handleVoteCommitClick}
+              variant="outlined"
+              disabled={
+                (this.props.userIsVerified &&
+                  this.props.voterHasCommittedVote) ||
+                this.props.voterAddress === null
+              }
+            >
+              Commit vote
+            </Button>
+          ) : (
+            <Button
+              style={ButtonStyle}
+              onClick={this.handleVoteRevealClick}
+              variant="outlined"
+              disabled={
+                (this.props.userIsVerified &&
+                  this.props.voterHasRevealedVote) ||
+                this.props.voterAddress === null
+              }
+            >
+              Reveal vote
+            </Button>
+          )}
         </Actions>
       </Card>
     );
