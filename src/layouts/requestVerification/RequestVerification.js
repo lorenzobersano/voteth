@@ -1,17 +1,11 @@
 import React, { Component } from 'react';
-import styled from 'styled-components';
-import { Button } from '@material-ui/core';
+import swal from 'sweetalert2';
 
 import { requestVerification } from './../../util/electionContractInteractions';
 import { uploadToIPFS } from './../../util/ipfsUtils';
 
 import Container from '../container/Container';
-
-const PhotoUploadButton = styled.input`
-  outline: none;
-  border: none;
-  width: 100%;
-`;
+import RightAlignedButton from './../rightAlignedButton/RightAlignedButton';
 
 class RequestVerification extends Component {
   constructor(props) {
@@ -27,7 +21,7 @@ class RequestVerification extends Component {
   async handleClick(e) {
     e.preventDefault();
 
-    if (!this.state.image) alert('Select an image of the document to submit!');
+    if (!this.state.image) swal('Select an image to submit!', '', 'warning');
     else {
       try {
         const picHash = await uploadToIPFS(this.state.image);
@@ -38,9 +32,9 @@ class RequestVerification extends Component {
           this.props.authData.address
         );
 
-        alert('Verification request sent correctly!');
+        swal('Verification request sent correctly!', '', 'success');
       } catch (error) {
-        console.log(error);
+        swal(error, '', 'error');
       }
     }
   }
@@ -61,14 +55,16 @@ class RequestVerification extends Component {
   render() {
     return (
       <Container>
-        <h1>Upload a photo of your ID Document to get the ability to vote</h1>
-        <PhotoUploadButton
+        <h2>Upload a photo of your ID Document to get the ability to vote</h2>
+        <input
           type="file"
           name="pic"
           onChange={this.handlePicUpload}
           required
         />
-        <Button onClick={this.handleClick}>Upload</Button>
+        <RightAlignedButton onClick={this.handleClick}>
+          Upload
+        </RightAlignedButton>
       </Container>
     );
   }

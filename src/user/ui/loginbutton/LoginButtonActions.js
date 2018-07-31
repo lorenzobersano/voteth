@@ -62,7 +62,9 @@ export function loginUser() {
         );
       }
 
-      return browserHistory.push('/');
+      return credentials.isAdmin
+        ? browserHistory.push('/')
+        : browserHistory.push('/profile');
     }
   };
 }

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { Button } from '@material-ui/core';
 
 import { uploadToIPFS } from './../../util/ipfsUtils';
 import { addCandidate } from './../../util/electionContractInteractions';
@@ -8,24 +7,53 @@ import { addCandidate } from './../../util/electionContractInteractions';
 import Container from './../container/Container';
 import Label from './../label/Label';
 import Form from './../form/Form';
+import RightAlignedButton from './../rightAlignedButton/RightAlignedButton';
+
+const Loader = styled.div`
+  border: 16px solid #f3f3f3;
+  border-top: 16px solid #aaa;
+  border-radius: 50%;
+  width: 3rem;
+  height: 3rem;
+  animation: spin 2s linear infinite;
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
+const LoaderContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
 
 const TextBox = styled.input`
   outline: none;
   border: none;
   width: 100%;
-  fill-opacity: 50%;
   font-size: 1.5em;
-  border-radius: 1px;
+  border-radius: 4px;
+`;
+
+const TextArea = styled.textarea`
+  outline: none;
+  border: none;
+  width: 100%;
+  resize: vertical;
+  font-size: 1.5em;
+  border-radius: 4px;
 `;
 
 const PhotoUploadButton = styled.input`
   outline: none;
   border: none;
   width: 100%;
-`;
-
-const RightAlignedButton = styled(Button)`
-  align-self: flex-end;
 `;
 
 let file;
@@ -37,19 +65,32 @@ class AddCandidateForm extends Component {
     super(props);
 
     this.handleSubmit = this.handleSubmit.bind(this);
+
+    this.state = {
+      isAddingCandidate: false,
+      loaderText: 'Loading...'
+    };
   }
 
   async handleSubmit(e) {
     e.preventDefault();
 
+    this.setState({
+      isAddingCandidate: true,
+      loaderText: 'Uploading candidate picture to IPFS...'
+    });
+
     const name = document.querySelector('input[name="name"]').value;
     const party = document.querySelector('input[name="party"]').value;
     const politicalProgram = document.querySelector(
-      'input[name="politicalProgram"]'
+      'textarea[name="politicalProgram"]'
     ).value;
 
     try {
       const picHash = await uploadToIPFS(buffer);
+
+      picHash &&
+        this.setState({ loaderText: 'Uploading candidate to Ethereum...' });
 
       await addCandidate(
         picHash,
@@ -58,6 +99,8 @@ class AddCandidateForm extends Component {
         politicalProgram,
         this.props.authData.address
       );
+
+      this.setState({ isAddingCandidate: false });
     } catch (error) {
       console.log(error);
     }
@@ -76,26 +119,30 @@ class AddCandidateForm extends Component {
 
   render() {
     return (
-      <main>
-        <Container>
-          <Form onSubmit={this.handleSubmit}>
-            <Label htmlFor="name">Name</Label>
-            <TextBox type="text" name="name" required />
-            <Label htmlFor="party">Party</Label>
-            <TextBox type="text" name="party" required />
-            <Label htmlFor="politicalProgram">Political program</Label>
-            <TextBox type="text" name="politicalProgram" required />
-            <Label htmlFor="pic">Candidate pic</Label>
-            <PhotoUploadButton
-              type="file"
-              name="pic"
-              onChange={this.handlePicUpload}
-              required
-            />
-            <RightAlignedButton type="submit">Add candidate</RightAlignedButton>
-          </Form>
-        </Container>
-      </main>
+      <Container>
+        <Form onSubmit={this.handleSubmit}>
+          <Label htmlFor="name">Name</Label>
+          <TextBox type="text" name="name" required />
+          <Label htmlFor="party">Party</Label>
+          <TextBox type="text" name="party" required />
+          <Label htmlFor="politicalProgram">Political program</Label>
+          <TextArea name="politicalProgram" required />
+          <Label htmlFor="pic">Candidate pic</Label>
+          <PhotoUploadButton
+            type="file"
+            name="pic"
+            onChange={this.handlePicUpload}
+            required
+          />
+          <RightAlignedButton type="submit">Add candidate</RightAlignedButton>
+        </Form>
+        {this.state.isAddingCandidate && (
+          <LoaderContainer>
+            <Loader />
+            <p>{this.state.loaderText}</p>
+          </LoaderContainer>
+        )}
+      </Container>
     );
   }
 }

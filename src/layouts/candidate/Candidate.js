@@ -65,7 +65,6 @@ const ButtonStyle = {
 export default class Candidate extends Component {
   constructor(props) {
     super(props);
-    console.log(props);
 
     this.handleVoteCommitClick = this.handleVoteCommitClick.bind(this);
     this.handleVoteRevealClick = this.handleVoteRevealClick.bind(this);
@@ -86,8 +85,6 @@ export default class Candidate extends Component {
       const voteHash = soliditySha3(
         `'${this.props.name}-${this.props.voterAddress}-${password}'`
       );
-
-      console.log(voteHash);
 
       try {
         await commitVote(voteHash, this.props.voterAddress);
@@ -117,9 +114,6 @@ export default class Candidate extends Component {
     if (password) {
       const vote = `${this.props.name}-${this.props.voterAddress}-${password}`;
       const voteHash = soliditySha3(`'${vote}'`);
-
-      console.log(vote);
-      console.log(voteHash);
 
       try {
         const result = await revealVote(

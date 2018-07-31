@@ -9,6 +9,13 @@ import {
   getNumberOfCandidates
 } from '../../util/electionContractInteractions';
 import { resolveIPFSHash } from '../../util/ipfsUtils';
+import Result from '../result/Result';
+import styled from '../../../node_modules/styled-components';
+
+const ResultsHeading = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
 
 class Results extends Component {
   constructor(props) {
@@ -49,8 +56,7 @@ class Results extends Component {
   }
 
   async getElectionResults() {
-    let numOfCandidates;
-    let i;
+    let numOfCandidates, i;
     let candidate, pic, votesForCandidate;
     let candidates = [];
 
@@ -65,18 +71,18 @@ class Results extends Component {
           pic = await resolveIPFSHash(candidate[0]);
           votesForCandidate = await getVotesForCandidate(`'${candidate[1]}`);
 
-          console.log(candidate);
-          console.log(votesForCandidate);
-
           candidates.push(
-            <div key={i}>
-              <h2>{candidate[1]}</h2>
-              <p>{votesForCandidate}</p>
-            </div>
+            <Result
+              candidatePic={pic}
+              candidateName={candidate[1]}
+              candidateParty={candidate[2]}
+              votes={votesForCandidate}
+              key={i}
+            />
           );
-
-          !this.isCancelled && this.setState({ candidates });
         }
+
+        !this.isCancelled && this.setState({ candidates });
       }
     } catch (e) {
       console.log(e);
@@ -87,8 +93,18 @@ class Results extends Component {
     return (
       <main>
         <Container>
-          <h1>Results</h1>
-          {this.state.candidates ? this.state.candidates : <p>Loading...</p>}
+          <h2>Results</h2>
+          <ResultsHeading>
+            <h4>Candidates</h4>
+            <h4>Votes</h4>
+          </ResultsHeading>
+          {this.state.candidates ? (
+            this.state.candidates
+          ) : this.state.electionHasEnded ? (
+            <p>Loading...</p>
+          ) : (
+            <p>Results not available yet, come back later!</p>
+          )}
         </Container>
       </main>
     );

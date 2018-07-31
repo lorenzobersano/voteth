@@ -9,7 +9,11 @@ contract Election {
     uint    public startTime;
     uint    public endTime;
     address public owner;
-    
+    bool    public stopped;
+
+    modifier stopInEmergency { require(!stopped); _; }
+    modifier onlyInEmergency { require(stopped); _; }
+
     modifier onlyVerifiedVoter {
         require(verifiedVoter[msg.sender] == true);
         _;
@@ -48,6 +52,8 @@ contract Election {
     event VoteCommitted(address _voter, bytes32 _hashedVote);
     event VoteRevealed(address _voter, string _vote, uint _votesForCandidate);
     event VerificationRequested(address _requester);
+    event VerificationRequestRemoved(uint _pos);
+    event CandidateRemoved(uint _pos);
     
     struct Candidate {
         string imageHash;
@@ -75,6 +81,10 @@ contract Election {
         owner = msg.sender;
     }
     
+    /** @dev                Sets the time range of the election
+     *  @return _startTime  The timestamp of the start time of the election
+     *  @return _endTime    The timestamp of the end time of the election
+     */
     function setElectionTimeRange(uint _startTime, uint _endTime) public onlyOwner {
         startTime = _startTime;
         endTime = _endTime;
@@ -129,31 +139,33 @@ contract Election {
         }
     
         candidates.length--;
+
+        emit CandidateRemoved(_position);
     }
 
     /** @dev                Gets the count of the votes for a certain Candidate
-     *  @param  _candidate  The Candidate (expressed as a keccak256 hash of the name and the party) to count the votes for
+     *  @param  _candidate  The Candidate name to count the votes for
      *  @return _votes      The number of votes for the Candidate
      */
     function getVotesForCandidate(string _candidate) public view electionIsClosed returns (uint _votes) {
         return revealedVotes[_candidate];
     }
     
-    /** @dev          Casts a vote for a certain Candidate (expressed as a keccak256 hash of the name and the party)
-     *  @param  _vote The Candidate (expressed as a keccak256 hash of the name and the party) that gets the vote of the sender of the tx
+    /** @dev          Commits a vote for a certain Candidate
+     *  @param  _vote The keccak256 hash of the vote in this form: nameOfCandidate-MNIDofVoter-secretPassword
      */
-    function commitVote(bytes32 _vote) public onlyVerifiedVoter electionIsOpen voterHasNotCommittedVote {
+    function commitVote(bytes32 _vote) public onlyVerifiedVoter electionIsOpen voterHasNotCommittedVote stopInEmergency {
         committedVotes[msg.sender] = _vote;
         voterHasCommittedVote[msg.sender] = true;
 
         emit VoteCommitted(msg.sender, _vote);
     }
 
-    /** @dev          Casts a vote for a certain Candidate (expressed as a keccak256 hash of the name and the party)
-     *  @param  _vote The Candidate (expressed as a keccak256 hash of the name and the party) that gets the vote of the sender of the tx
-     *  @param  _committedVote The Candidate (expressed as a keccak256 hash of the name and the party) that gets the vote of the sender of the tx
+    /** @dev                    Reveals the vote previously committed
+     *  @param  _vote           The vote in this form: nameOfCandidate-MNIDofVoter-secretPassword in plain text
+     *  @param  _committedVote  The keccak256 hash of the vote in this form: nameOfCandidate-MNIDofVoter-secretPassword
      */
-    function revealVote(string _vote, bytes32 _committedVote) public onlyVerifiedVoter electionIsClosed voterHasNotRevealedVote {
+    function revealVote(string _vote, bytes32 _committedVote) public onlyVerifiedVoter electionIsClosed voterHasNotRevealedVote stopInEmergency {
         require(committedVotes[msg.sender] == _committedVote);
         require(keccak256(abi.encodePacked(_vote)) == _committedVote);
 
@@ -164,10 +176,11 @@ contract Election {
         emit VoteRevealed(msg.sender, _votedCandidateName, revealedVotes[_votedCandidateName]);
     }
     
-    /** @dev                            For Election users only, creates a VerificationRequest to be able to vote              
+    /** @dev                            For Election users only, creates a VerificationRequest to be able to vote             
+     *  @param  _requesterName          The name fo the requester
      *  @param  _votingDocumentIPFSHash The hash of the document needed to verify the user stored on IPFS
      */
-    function requestVerification(string _requesterName, string _votingDocumentIPFSHash) public electionIsNotOpenedYet {
+    function requestVerification(string _requesterName, string _votingDocumentIPFSHash) public electionIsNotOpenedYet stopInEmergency {
         verificationRequests.push(VerificationRequest(msg.sender, _requesterName, _votingDocumentIPFSHash));
 
         emit VerificationRequested(msg.sender);
@@ -204,6 +217,8 @@ contract Election {
         }
     
         verificationRequests.length--;
+
+        emit VerificationRequestRemoved(_position);
     }
     
     /** @dev                    Verifies a voter with a specified address
@@ -213,4 +228,10 @@ contract Election {
         verifiedVoter[_voter] = true;
         removeVerificationRequestAt(_pos);
     }
+
+    /** @dev    Lets the admin lock or unlock certain functionalities in certain situations (circuit breaker pattern)
+     */
+    function toggleCircuitBreaker() onlyOwner public {
+        stopped = !stopped;
+    } 
 }

@@ -25,6 +25,7 @@ ReactDOM.render(
     <Router history={history}>
       <Route path="/" component={App}>
         <IndexRoute component={Home} />
+        <Route path="results" component={Results} />
         <Route
           path="addCandidate"
           component={UserIsAuthenticated(AddCandidateForm)}
@@ -41,7 +42,6 @@ ReactDOM.render(
           path="requestVerification"
           component={UserIsAuthenticated(RequestVerification)}
         />
-        <Route path="results" component={UserIsAuthenticated(Results)} />
         <Route path="profile" component={UserIsAuthenticated(Profile)} />
       </Route>
     </Router>

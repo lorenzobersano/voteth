@@ -28,6 +28,14 @@ class VerifyVoters extends Component {
     this.isCancelled = true;
   }
 
+  deleteVerificationRequest = indexToDelete => {
+    this.setState(({ verificationRequests }) => ({
+      verificationRequests: verificationRequests.filter(
+        verReq => parseInt(verReq.key) !== indexToDelete
+      )
+    }));
+  };
+
   async getAllVerificationRequests() {
     let numOfVerificationRequests;
     let i;
@@ -69,6 +77,7 @@ class VerifyVoters extends Component {
               key={i}
               index={i}
               ownerAddress={this.props.authData.address}
+              delete={this.deleteVerificationRequest.bind(this, i)}
             />
           );
         } catch (e) {

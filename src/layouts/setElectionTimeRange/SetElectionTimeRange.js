@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import DateTimePicker from 'react-datetime-picker';
-import { Button } from '@material-ui/core';
 
 import Label from './../label/Label';
 import Container from './../container/Container';
 import Form from './../form/Form';
+import RightAlignedButton from './../rightAlignedButton/RightAlignedButton';
 
 import { setElectionTimeRange } from './../../util/electionContractInteractions';
 
@@ -66,7 +66,7 @@ class SetElectionTimeRange extends Component {
             renderSecondHand={false}
             required
           />
-          <Button type="submit">confirm</Button>
+          <RightAlignedButton type="submit">confirm</RightAlignedButton>
         </Form>
       </Container>
     );

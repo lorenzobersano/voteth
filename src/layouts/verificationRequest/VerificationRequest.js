@@ -5,11 +5,11 @@ import {
   removeVerificationRequestAt,
   verifyVoter
 } from '../../util/electionContractInteractions';
+import swal from 'sweetalert2';
 
 const Card = styled.div`
   display: flex;
   flex-direction: column;
-  /* grid-template-rows: auto auto auto auto; */
   background: rgb(250, 250, 250);
   border: 1px solid #0000001e;
   margin-bottom: 16px;
@@ -30,15 +30,19 @@ const Name = styled.h2`
 
 const Actions = styled.div`
   margin-top: 0.5rem;
-  grid-column: span 2;
   display: flex;
   justify-content: flex-end;
 `;
 
 const Document = styled.img`
   width: 100%;
+  height: 200px;
   object-fit: contain;
 `;
+
+const ButtonStyle = {
+  marginLeft: '0.5rem'
+};
 
 class VerificationRequest extends Component {
   constructor(props) {
@@ -54,6 +58,9 @@ class VerificationRequest extends Component {
         this.props.index,
         this.props.ownerAddress
       );
+
+      this.props.delete();
+      swal('Approved!', '', 'success');
     } catch (e) {
       console.log(e);
     }
@@ -66,7 +73,10 @@ class VerificationRequest extends Component {
         this.props.ownerAddress
       );
 
-      if (result) alert('Deleted!');
+      if (result) {
+        this.props.delete();
+        swal('Deleted!', '', 'success');
+      }
     } catch (e) {
       console.log(e);
     }
@@ -79,10 +89,18 @@ class VerificationRequest extends Component {
         <p>Identification Document</p>
         <Document src={this.props.documentPic} />
         <Actions>
-          <Button variant="outlined" onClick={this.approveRequest}>
+          <Button
+            style={ButtonStyle}
+            variant="outlined"
+            onClick={this.approveRequest}
+          >
             Approve
           </Button>
-          <Button variant="outlined" onClick={this.denyRequest}>
+          <Button
+            style={ButtonStyle}
+            variant="outlined"
+            onClick={this.denyRequest}
+          >
             Deny
           </Button>
         </Actions>

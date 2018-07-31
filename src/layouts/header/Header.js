@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router';
 import {
   HiddenOnlyAuth,
@@ -17,6 +17,20 @@ const Navbar = styled.nav`
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #0000001e;
+
+  @media (max-width: 45rem) {
+    flex-direction: column;
+    padding-bottom: 1rem;
+  }
+`;
+
+const NavLink = styled(Link)`
+  padding-right: 0.5rem;
+
+  @media (max-width: 768px) {
+    padding-bottom: 0.5rem;
+    justify-content: center;
+  }
 `;
 
 const HeaderTitle = styled.h1`
@@ -24,30 +38,40 @@ const HeaderTitle = styled.h1`
   color: #02111b;
 `;
 
-const LoggedInLinksContainer = styled.div`
+const Links = styled.div`
   display: flex;
-  justify-content: space-around;
+
+  @media (max-width: 720px) {
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
 `;
 
 export default class Header extends Component {
   render() {
-    const OnlyAuthLinks = VisibleOnlyAuth(() => (
-      <LoggedInLinksContainer>
-        <Link to="/results">Results</Link> |
-        <Link to="/profile">Profile</Link> |
-        <Link to="/requestVerification">Request verification</Link> |
-        <LogoutButtonContainer />
-      </LoggedInLinksContainer>
-    ));
+    const OnlyAuthLinks = VisibleOnlyAuth(() => [
+      <NavLink to="/profile" key={'profile'}>
+        Profile
+      </NavLink>,
+      <NavLink to="/requestVerification" key={'requestVerification'}>
+        Request verification
+      </NavLink>,
+      <LogoutButtonContainer key={'logout'} />
+    ]);
 
-    const OnlyAuthAdminLinks = VisibleOnlyAuthAdmin(() => (
-      <LoggedInLinksContainer>
-        <Link to="/addCandidate">Add candidate</Link> |
-        <Link to="/setElectionTimeRange">Set election time range</Link> |
-        <Link to="/verifyVoters">Verify voters</Link> |
-        <LogoutButtonContainer />
-      </LoggedInLinksContainer>
-    ));
+    const OnlyAuthAdminLinks = VisibleOnlyAuthAdmin(() => [
+      <NavLink to="/addCandidate" key={'addCandidate'}>
+        Add candidate
+      </NavLink>,
+      <NavLink to="/setElectionTimeRange" key={'setElectionTimeRange'}>
+        Set election time range
+      </NavLink>,
+      <NavLink to="/verifyVoters" key={'verifyVoters'}>
+        Verify voters
+      </NavLink>,
+      <LogoutButtonContainer key={'logout'} />
+    ]);
 
     const OnlyGuestLinks = HiddenOnlyAuth(() => <LoginButtonContainer />);
 
@@ -57,9 +81,12 @@ export default class Header extends Component {
           <Link to="/">
             <HeaderTitle>votΞ</HeaderTitle>
           </Link>
-          <OnlyGuestLinks />
-          <OnlyAuthAdminLinks />
-          <OnlyAuthLinks />
+          <Links>
+            <NavLink to="/results">Results</NavLink>
+            <OnlyGuestLinks />
+            <OnlyAuthAdminLinks />
+            <OnlyAuthLinks />
+          </Links>
         </Navbar>
       </Container>
     );
