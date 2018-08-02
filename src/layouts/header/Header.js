@@ -61,6 +61,9 @@ export default class Header extends Component {
     ]);
 
     const OnlyAuthAdminLinks = VisibleOnlyAuthAdmin(() => [
+      <NavLink to="/handleEmergency" key={'handleEmergency'}>
+        Handle emergency
+      </NavLink>,
       <NavLink to="/addCandidate" key={'addCandidate'}>
         Add candidate
       </NavLink>,

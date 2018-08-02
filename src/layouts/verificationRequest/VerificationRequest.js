@@ -47,11 +47,25 @@ const ButtonStyle = {
 class VerificationRequest extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      isApprovingRequest: false,
+      isDenyingRequest: false
+    };
+
     this.approveRequest = this.approveRequest.bind(this);
     this.denyRequest = this.denyRequest.bind(this);
   }
 
+  isCancelled = false;
+
+  componentWillUnmount() {
+    this.isCancelled = true;
+  }
+
   async approveRequest() {
+    !this.isCancelled && this.setState({ isApprovingRequest: true });
+
     try {
       await verifyVoter(
         this.props.requesterAddress,
@@ -67,6 +81,8 @@ class VerificationRequest extends Component {
   }
 
   async denyRequest() {
+    !this.isCancelled && this.setState({ isDenyingRequest: true });
+
     try {
       const result = await removeVerificationRequestAt(
         this.props.index,
@@ -92,16 +108,22 @@ class VerificationRequest extends Component {
           <Button
             style={ButtonStyle}
             variant="outlined"
+            disabled={
+              this.state.isApprovingRequest || this.state.isDenyingRequest
+            }
             onClick={this.approveRequest}
           >
-            Approve
+            {this.state.isApprovingRequest ? 'Approving request...' : 'Approve'}
           </Button>
           <Button
             style={ButtonStyle}
             variant="outlined"
+            disabled={
+              this.state.isApprovingRequest || this.state.isDenyingRequest
+            }
             onClick={this.denyRequest}
           >
-            Deny
+            {this.state.isDenyingRequest ? 'Denying request...' : 'Deny'}
           </Button>
         </Actions>
       </Card>

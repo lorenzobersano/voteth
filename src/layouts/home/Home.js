@@ -11,12 +11,14 @@ import {
   getVerificationState,
   checkIfVoterHasCommittedVote,
   checkIfVoterHasRevealedVote,
-  getElectionTimeRange
+  getElectionTimeRange,
+  getElectionCurrentInstance
 } from './../../util/electionContractInteractions';
 
 // UI Components
 import Container from '../container/Container';
 import Candidate from '../candidate/Candidate';
+import { SpinnerWithInfo } from '../Spinner';
 
 const CandidatesHeaderText = styled.h2`
   color: #30292f;
@@ -31,25 +33,42 @@ const mapStateToProps = state => {
 class Home extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       candidates: null,
       userIsVerified: false,
       voterHasCommittedVote: false,
       voterHasRevealedVote: false,
-      userAddress: null
+      userAddress: null,
+      loadingText: ''
     };
   }
 
+  currentElectionAddress = '';
   isCancelled = false;
 
   componentDidMount() {
-    if (this.props.authData && isMNID(this.props.authData.address))
-      this.checkVoterState();
-    this.getElectionTimeRange();
+    this.getElectionCurrentInstance();
   }
 
   componentWillUnmount() {
     this.isCancelled = true;
+  }
+
+  async getElectionCurrentInstance() {
+    if (this.currentElectionAddress === '')
+      try {
+        !this.isCancelled &&
+          this.setState({ loadingText: 'Retrieving Election...' });
+
+        this.currentElectionAddress = await getElectionCurrentInstance();
+
+        if (this.props.authData && isMNID(this.props.authData.address))
+          this.checkVoterState();
+        this.getElectionTimeRange();
+      } catch (error) {
+        console.log(error);
+      }
   }
 
   async checkVoterState() {
@@ -94,6 +113,9 @@ class Home extends Component {
     let candidate, pic;
     let candidates = [];
 
+    !this.isCancelled &&
+      this.setState({ loadingText: 'Retrieving candidates...' });
+
     try {
       numOfCandidates = await getNumberOfCandidates();
     } catch (e) {
@@ -134,12 +156,14 @@ class Home extends Component {
 
   render() {
     return (
-      <main>
-        <Container>
-          <CandidatesHeaderText>Candidates</CandidatesHeaderText>
-          {this.state.candidates ? this.state.candidates : 'Loading...'}
-        </Container>
-      </main>
+      <Container>
+        <CandidatesHeaderText>Candidates</CandidatesHeaderText>
+        {this.state.candidates ? (
+          this.state.candidates
+        ) : (
+          <SpinnerWithInfo info={this.state.loadingText} />
+        )}
+      </Container>
     );
   }
 }

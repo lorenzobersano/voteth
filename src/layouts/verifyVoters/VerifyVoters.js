@@ -8,6 +8,8 @@ import { resolveIPFSHash } from './../../util/ipfsUtils';
 
 import Container from './../container/Container';
 import VerificationRequest from './../verificationRequest/VerificationRequest';
+import { SpinnerWithInfo } from '../Spinner';
+import checkIfMetaMaskIsEnabled from '../../util/checkIfMetaMaskIsEnabled';
 
 class VerifyVoters extends Component {
   constructor() {
@@ -21,6 +23,10 @@ class VerifyVoters extends Component {
   isCancelled = false;
 
   componentDidMount() {
+    setInterval(() => {
+      checkIfMetaMaskIsEnabled();
+    }, 1000);
+
     this.getAllVerificationRequests().catch(e => console.log(e));
   }
 
@@ -92,10 +98,12 @@ class VerifyVoters extends Component {
   render() {
     return (
       <Container>
-        <h2>Verification Requests</h2>
-        {this.state.verificationRequests
-          ? this.state.verificationRequests
-          : 'Loading...'}
+        <h2>Verification requests</h2>
+        {this.state.verificationRequests ? (
+          this.state.verificationRequests
+        ) : (
+          <SpinnerWithInfo info={'Loading verification requests...'} />
+        )}
       </Container>
     );
   }

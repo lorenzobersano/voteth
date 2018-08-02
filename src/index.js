@@ -14,9 +14,11 @@ import AddCandidateForm from './layouts/addCandidateForm/AddCandidateForm';
 import SetElectionTimeRange from './layouts/setElectionTimeRange/SetElectionTimeRange';
 import VerifyVoters from './layouts/verifyVoters/VerifyVoters.js';
 import RequestVerification from './layouts/requestVerification/RequestVerification.js';
+import HandleEmergency from './layouts/handleEmergency/HandleEmergency.js';
 
 // Redux Store
 import store from './store';
+import checkIfMetaMaskIsEnabled from './util/checkIfMetaMaskIsEnabled.js';
 
 const history = syncHistoryWithStore(browserHistory, store);
 
@@ -27,16 +29,28 @@ ReactDOM.render(
         <IndexRoute component={Home} />
         <Route path="results" component={Results} />
         <Route
+          path="handleEmergency"
+          component={checkIfMetaMaskIsEnabled(
+            UserIsAuthenticated(HandleEmergency)
+          )}
+        />
+        <Route
           path="addCandidate"
-          component={UserIsAuthenticated(AddCandidateForm)}
+          component={checkIfMetaMaskIsEnabled(
+            UserIsAuthenticated(AddCandidateForm)
+          )}
         />
         <Route
           path="verifyVoters"
-          component={UserIsAuthenticated(VerifyVoters)}
+          component={checkIfMetaMaskIsEnabled(
+            UserIsAuthenticated(VerifyVoters)
+          )}
         />
         <Route
           path="setElectionTimeRange"
-          component={UserIsAuthenticated(SetElectionTimeRange)}
+          component={checkIfMetaMaskIsEnabled(
+            UserIsAuthenticated(SetElectionTimeRange)
+          )}
         />
         <Route
           path="requestVerification"

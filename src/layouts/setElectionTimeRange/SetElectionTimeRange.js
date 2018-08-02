@@ -8,6 +8,9 @@ import Form from './../form/Form';
 import RightAlignedButton from './../rightAlignedButton/RightAlignedButton';
 
 import { setElectionTimeRange } from './../../util/electionContractInteractions';
+import swal from 'sweetalert2';
+import checkIfMetaMaskIsEnabled from '../../util/checkIfMetaMaskIsEnabled';
+import { SpinnerWithInfo } from '../Spinner';
 
 const StyledDateTimePicker = styled(DateTimePicker)`
   background-color: white;
@@ -18,11 +21,14 @@ class SetElectionTimeRange extends Component {
     super(props);
     this.state = {
       startTime: new Date(),
-      endTime: new Date()
+      endTime: new Date(),
+      isSettingTimeRange: false
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
   }
+
+  isCancelled = false;
 
   async handleSubmit(e) {
     e.preventDefault();
@@ -35,14 +41,20 @@ class SetElectionTimeRange extends Component {
       (this.state.endTime.getTime() / 1000).toFixed(0)
     );
 
+    !this.isCancelled && this.setState({ isSettingTimeRange: true });
+
     try {
       await setElectionTimeRange(
         startTimeTimestamp,
         endTimeTimestamp,
         this.props.authData.address
       );
+
+      swal('Election time range correctly set!', '', 'success');
     } catch (e) {
-      console.log(e);
+      swal('Ooops!', `${e}`, 'error');
+    } finally {
+      !this.isCancelled && this.setState({ isSettingTimeRange: false });
     }
   }
 
@@ -68,6 +80,9 @@ class SetElectionTimeRange extends Component {
           />
           <RightAlignedButton type="submit">confirm</RightAlignedButton>
         </Form>
+        {this.state.isSettingTimeRange && (
+          <SpinnerWithInfo info={this.state.loaderText} />
+        )}
       </Container>
     );
   }

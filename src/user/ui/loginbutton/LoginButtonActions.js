@@ -1,7 +1,9 @@
 import { browserHistory } from 'react-router';
 import { uport } from './../../../util/connectors.js';
-import { getElectionAdminRights } from './../../../util/electionContractInteractions';
-import { decode } from 'mnid';
+import {
+  getElectionAdminRights,
+  getElectionCurrentInstance
+} from './../../../util/electionContractInteractions';
 
 export const USER_LOGGED_IN = 'USER_LOGGED_IN';
 
@@ -16,8 +18,7 @@ export function loginUser() {
   return async dispatch => {
     // UPort and its web3 instance are defined in ./../../../util/wrappers.
     // Request uPort persona of account passed via QR
-    let owner;
-    let credentials;
+    let owner, credentials, contract;
 
     // If the current user is logged in with MetaMask and is admin
     try {

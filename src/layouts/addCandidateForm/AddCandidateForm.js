@@ -8,30 +8,8 @@ import Container from './../container/Container';
 import Label from './../label/Label';
 import Form from './../form/Form';
 import RightAlignedButton from './../rightAlignedButton/RightAlignedButton';
-
-const Loader = styled.div`
-  border: 16px solid #f3f3f3;
-  border-top: 16px solid #aaa;
-  border-radius: 50%;
-  width: 3rem;
-  height: 3rem;
-  animation: spin 2s linear infinite;
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-`;
-
-const LoaderContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
+import { SpinnerWithInfo } from '../Spinner';
+import checkIfMetaMaskIsEnabled from '../../util/checkIfMetaMaskIsEnabled';
 
 const TextBox = styled.input`
   outline: none;
@@ -137,10 +115,7 @@ class AddCandidateForm extends Component {
           <RightAlignedButton type="submit">Add candidate</RightAlignedButton>
         </Form>
         {this.state.isAddingCandidate && (
-          <LoaderContainer>
-            <Loader />
-            <p>{this.state.loaderText}</p>
-          </LoaderContainer>
+          <SpinnerWithInfo info={this.state.loaderText} />
         )}
       </Container>
     );

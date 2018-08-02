@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 
 // UI Components
 import Container from '../container/Container';
@@ -11,6 +11,7 @@ import {
 import { resolveIPFSHash } from '../../util/ipfsUtils';
 import Result from '../result/Result';
 import styled from '../../../node_modules/styled-components';
+import { SpinnerWithInfo } from '../Spinner';
 
 const ResultsHeading = styled.div`
   display: flex;
@@ -45,7 +46,8 @@ class Results extends Component {
       const electionTimeRange = await getElectionTimeRange();
       const electionEndTime = electionTimeRange[1].toNumber();
       const electionHasEnded =
-        electionEndTime <= parseInt(new Date().getTime() / 1000).toFixed(0);
+        electionEndTime <= parseInt(new Date().getTime() / 1000).toFixed(0) &&
+        electionEndTime !== 0;
 
       !this.isCancelled && this.setState({ electionHasEnded });
 
@@ -101,7 +103,7 @@ class Results extends Component {
           {this.state.candidates ? (
             this.state.candidates
           ) : this.state.electionHasEnded ? (
-            <p>Loading...</p>
+            <SpinnerWithInfo info={'Loading results...'} />
           ) : (
             <p>Results not available yet, come back later!</p>
           )}

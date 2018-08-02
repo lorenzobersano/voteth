@@ -49,11 +49,14 @@ contract Election {
         _;
     }
 
+    event TimeRangeSet(address _owner);
     event VoteCommitted(address _voter, bytes32 _hashedVote);
     event VoteRevealed(address _voter, string _vote, uint _votesForCandidate);
     event VerificationRequested(address _requester);
     event VerificationRequestRemoved(uint _pos);
+    event CandidateAdded(string _name, string _party, string _politicalProgram);
     event CandidateRemoved(uint _pos);
+    event CircuitBreakerToggled(bool _status);
     
     struct Candidate {
         string imageHash;
@@ -88,6 +91,8 @@ contract Election {
     function setElectionTimeRange(uint _startTime, uint _endTime) public onlyOwner {
         startTime = _startTime;
         endTime = _endTime;
+
+        emit TimeRangeSet(msg.sender);
     }
 
     /** @dev                Gets the time range of the election
@@ -105,6 +110,8 @@ contract Election {
      */
     function addCandidate(string _imageHash, string _name, string _party, string _politicalProgram) public onlyOwner electionIsNotOpenedYet {
         candidates.push(Candidate(_imageHash, _name, _party, _politicalProgram));
+
+        emit CandidateAdded(_name, _party, _politicalProgram);
     }
     
     /** @dev                        Gets the Candidate from the list of candidates at a specified index
@@ -233,5 +240,7 @@ contract Election {
      */
     function toggleCircuitBreaker() onlyOwner public {
         stopped = !stopped;
+
+        emit CircuitBreakerToggled(stopped);
     } 
 }

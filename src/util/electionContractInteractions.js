@@ -3,31 +3,98 @@ import { uport } from './connectors';
 import Contract from 'truffle-contract';
 
 import electionArtifact from './../../build/contracts/Election.json';
+import electionRegistryArtifact from './../../build/contracts/ElectionRegistry.json';
+
+import deployedAddresses from './electionRegistryAddress.json';
 
 const Election = Contract(electionArtifact);
-const electionAddress = '0x73d25ab57ac4dc5a1ffe5c6140e172f4f9c7f4d1';
+let electionAddress, electionInstance;
 let web3Provider;
 
 if (typeof web3 !== 'undefined') {
   web3Provider = web3.currentProvider;
-} else {
-  // set the provider you want from Web3.providers
-  web3Provider = new Web3.providers.HttpProvider('http://localhost:8545');
 }
+// else {
+//   // set the provider you want from Web3.providers
+//   web3Provider = new Web3.providers.HttpProvider('http://localhost:8545');
+// }
 
 web3 = new Web3(web3Provider);
 
-const ElectionEventWatcher = web3.eth
-  .contract(electionArtifact.abi)
-  .at(electionAddress);
-
+const ElectionRegistry = web3.eth.contract(electionRegistryArtifact.abi);
+let ElectionEventWatcher;
 Election.setProvider(web3.currentProvider);
+
+export const getElectionCurrentInstance = () => {
+  return new Promise((resolve, reject) => {
+    if (deployedAddresses.ElectionRegistry !== '') {
+      const instance = ElectionRegistry.at(deployedAddresses.ElectionRegistry);
+      instance.backendContract(async (err, backendContract) => {
+        if (err) reject(err);
+
+        electionAddress = backendContract;
+
+        try {
+          electionInstance = await Election.at(electionAddress);
+        } catch (error) {
+          reject(error);
+        }
+
+        ElectionEventWatcher = web3.eth
+          .contract(electionArtifact.abi)
+          .at(electionAddress);
+
+        resolve(backendContract);
+      });
+    }
+    // else {
+    //   ElectionRegistry.new(
+    //     {
+    //       from: web3.eth.accounts[0],
+    //       data: electionRegistryArtifact.bytecode
+    //     },
+    //     (err, electionRegistryInstance) => {
+    //       if (err) reject(err);
+
+    //       if (electionRegistryInstance.address) {
+    //         console.log(electionRegistryInstance.address); // the contract address
+
+    //         electionRegistryInstance.changeBackend(
+    //           '0x73d25ab57ac4dc5a1ffe5c6140e172f4f9c7f4d1',
+    //           {
+    //             from: web3.eth.accounts[0]
+    //           },
+    //           (err, res) => {
+    //             if (err) reject(err);
+    //             resolve();
+    //           }
+    //         );
+    //       }
+    //     }
+    //   );
+    // }
+  });
+};
+
+export const changeBackend = (newBackendAddress, sender) => {
+  return new Promise((resolve, reject) => {
+    const instance = ElectionRegistry.at(deployedAddresses.ElectionRegistry);
+    instance.changeBackend(
+      newBackendAddress,
+      { from: sender },
+      async (err, result) => {
+        if (err) reject(err);
+
+        resolve(result);
+      }
+    );
+  });
+};
 
 export const getElectionAdminRights = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const instance = await Election.deployed();
-      const owner = await instance.owner();
+      const owner = await electionInstance.owner();
 
       web3.eth.accounts.length > 0 && web3.eth.accounts[0] == owner
         ? resolve(owner)
@@ -47,10 +114,15 @@ export const addCandidate = (
 ) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const instance = await Election.deployed();
-      await instance.addCandidate(picHash, name, party, politicalProgram, {
-        from: sender
-      });
+      await electionInstance.addCandidate(
+        picHash,
+        name,
+        party,
+        politicalProgram,
+        {
+          from: sender
+        }
+      );
 
       resolve();
     } catch (e) {
@@ -62,8 +134,7 @@ export const addCandidate = (
 export const getCandidateAt = pos => {
   return new Promise(async (resolve, reject) => {
     try {
-      const instance = await Election.deployed();
-      const candidate = await instance.getCandidateAt(pos);
+      const candidate = await electionInstance.getCandidateAt(pos);
 
       resolve(candidate);
     } catch (e) {
@@ -75,8 +146,7 @@ export const getCandidateAt = pos => {
 export const getVotesForCandidate = candidate => {
   return new Promise(async (resolve, reject) => {
     try {
-      const instance = await Election.deployed();
-      const votes = await instance.getVotesForCandidate(candidate);
+      const votes = await electionInstance.getVotesForCandidate(candidate);
 
       resolve(votes.toNumber());
     } catch (e) {
@@ -88,8 +158,7 @@ export const getVotesForCandidate = candidate => {
 export const getNumberOfCandidates = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const instance = await Election.deployed();
-      const numOfCandidates = await instance.getNumberOfCandidates();
+      const numOfCandidates = await electionInstance.getNumberOfCandidates();
 
       resolve(numOfCandidates);
     } catch (e) {
@@ -101,10 +170,12 @@ export const getNumberOfCandidates = () => {
 export const getVerificationRequestAt = (pos, sender) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const instance = await Election.deployed();
-      const verificationRequest = await instance.getVerificationRequestAt(pos, {
-        from: sender
-      });
+      const verificationRequest = await electionInstance.getVerificationRequestAt(
+        pos,
+        {
+          from: sender
+        }
+      );
 
       resolve(verificationRequest);
     } catch (e) {
@@ -116,8 +187,7 @@ export const getVerificationRequestAt = (pos, sender) => {
 export const getNumberOfVerificationRequests = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const instance = await Election.deployed();
-      const numOfVerificationRequests = await instance.getNumberOfVerificationRequests();
+      const numOfVerificationRequests = await electionInstance.getNumberOfVerificationRequests();
 
       resolve(numOfVerificationRequests);
     } catch (e) {
@@ -161,8 +231,7 @@ export const requestVerification = (
 export const removeVerificationRequestAt = (pos, sender) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const instance = await Election.deployed();
-      const result = await instance.removeVerificationRequestAt(pos, {
+      const result = await electionInstance.removeVerificationRequestAt(pos, {
         from: sender
       });
 
@@ -176,8 +245,7 @@ export const removeVerificationRequestAt = (pos, sender) => {
 export const getVerificationState = sender => {
   return new Promise(async (resolve, reject) => {
     try {
-      const instance = await Election.deployed();
-      const result = await instance.verifiedVoter(sender);
+      const result = await electionInstance.verifiedVoter(sender);
 
       resolve(result);
     } catch (e) {
@@ -189,8 +257,7 @@ export const getVerificationState = sender => {
 export const checkIfVoterHasCommittedVote = sender => {
   return new Promise(async (resolve, reject) => {
     try {
-      const instance = await Election.deployed();
-      const result = await instance.voterHasCommittedVote(sender);
+      const result = await electionInstance.voterHasCommittedVote(sender);
 
       resolve(result);
     } catch (e) {
@@ -202,8 +269,7 @@ export const checkIfVoterHasCommittedVote = sender => {
 export const checkIfVoterHasRevealedVote = sender => {
   return new Promise(async (resolve, reject) => {
     try {
-      const instance = await Election.deployed();
-      const result = await instance.voterHasRevealedVote(sender);
+      const result = await electionInstance.voterHasRevealedVote(sender);
 
       resolve(result);
     } catch (e) {
@@ -263,8 +329,7 @@ export const revealVote = (vote, voteHash, sender) => {
 export const verifyVoter = (voter, positionInRequestersArray, sender) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const instance = await Election.deployed();
-      await instance.verifyVoter(voter, positionInRequestersArray, {
+      await electionInstance.verifyVoter(voter, positionInRequestersArray, {
         from: sender
       });
 
@@ -280,12 +345,21 @@ export const setElectionTimeRange = (startTime, endTime, sender) => {
     if (endTime < startTime)
       return reject('End time must be greater than start time!');
 
-    let instance;
-
     try {
-      instance = await Election.deployed();
-      await instance.setElectionTimeRange(startTime, endTime, { from: sender });
-      resolve();
+      await electionInstance.setElectionTimeRange(startTime, endTime, {
+        from: sender
+      });
+
+      const timeRangeSetEvent = ElectionEventWatcher.TimeRangeSet(
+        { _owner: sender },
+        { fromBlock: 'latest', toBlock: 'latest' }
+      );
+
+      timeRangeSetEvent.watch((err, res) => {
+        if (err) reject(err);
+        timeRangeSetEvent.stopWatching();
+        resolve();
+      });
     } catch (e) {
       reject(e);
     }
@@ -295,8 +369,43 @@ export const setElectionTimeRange = (startTime, endTime, sender) => {
 export const getElectionTimeRange = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const instance = await Election.deployed();
-      const result = await instance.getElectionTimeRange();
+      const result = await electionInstance.getElectionTimeRange();
+
+      resolve(result);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export const toggleCircuitBreaker = sender => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await electionInstance.toggleCircuitBreaker({ from: sender });
+
+      const circuitBreakerToggledEvent = ElectionEventWatcher.CircuitBreakerToggled(
+        {},
+        { fromBlock: 'latest', toBlock: 'latest' }
+      );
+
+      circuitBreakerToggledEvent.watch((err, res) => {
+        if (err) reject(err);
+
+        console.log(res);
+
+        circuitBreakerToggledEvent.stopWatching();
+        resolve(res);
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export const checkIfStopped = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const result = await electionInstance.stopped();
 
       resolve(result);
     } catch (e) {
