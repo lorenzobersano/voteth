@@ -101,51 +101,48 @@ class HandleEmergency extends Component {
 
   render() {
     return (
-      <Container>
-        <Form onSubmit={this.handleSubmit}>
-          <Label htmlFor="emergencyStopSwitch">
-            Emergency stop status:{' '}
-            {this.state.isStopped ? (
-              <strong>STOPPED</strong>
-            ) : (
-              <strong>UNSTOPPED</strong>
-            )}
-          </Label>
-          <Switch
-            name="emergencyStopSwitch"
-            checked={this.state.isStopped}
-            onChange={this.handleCheck}
-          />
-          {this.state.isChangingEmergencyState && (
-            <SpinnerWithInfo
-              info={
-                this.state.isStopped
-                  ? 'Reverting Election contract to a non-emergency state...'
-                  : 'Enabling emergency stop...'
-              }
-            />
+      <Form onSubmit={this.handleSubmit}>
+        <Label htmlFor="emergencyStopSwitch">
+          Emergency stop status:{' '}
+          {this.state.isStopped ? (
+            <strong>STOPPED</strong>
+          ) : (
+            <strong>UNSTOPPED</strong>
           )}
-          <Label htmlFor="electionAddress">
-            Fixed Election contract address
-          </Label>
-          <TextBox
-            type="text"
-            disabled={!this.state.isStopped}
-            name="electionAddress"
-            required
+        </Label>
+        <Switch
+          name="emergencyStopSwitch"
+          checked={this.state.isStopped}
+          onChange={this.handleCheck}
+        />
+        {this.state.isChangingEmergencyState && (
+          <SpinnerWithInfo
+            info={
+              this.state.isStopped
+                ? 'Reverting Election contract to a non-emergency state...'
+                : 'Enabling emergency stop...'
+            }
           />
-          <RightAlignedButton
-            style={submitButtonStyle}
-            disabled={!this.state.isStopped}
-            type="submit"
-          >
-            Submit
-          </RightAlignedButton>
-        </Form>
+        )}
+        <Label htmlFor="electionAddress">Fixed Election contract address</Label>
+        <TextBox
+          type="text"
+          disabled={!this.state.isStopped}
+          name="electionAddress"
+          required
+        />
+        <RightAlignedButton
+          style={submitButtonStyle}
+          disabled={!this.state.isStopped}
+          type="submit"
+        >
+          Submit
+        </RightAlignedButton>
+
         {this.state.isChangingBackendContract && (
           <SpinnerWithInfo info={'Changing backend contract...'} />
         )}
-      </Container>
+      </Form>
     );
   }
 }

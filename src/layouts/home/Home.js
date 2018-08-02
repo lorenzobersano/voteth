@@ -16,7 +16,6 @@ import {
 } from './../../util/electionContractInteractions';
 
 // UI Components
-import Container from '../container/Container';
 import Candidate from '../candidate/Candidate';
 import { SpinnerWithInfo } from '../Spinner';
 
@@ -156,14 +155,14 @@ class Home extends Component {
 
   render() {
     return (
-      <Container>
+      <Fragment>
         <CandidatesHeaderText>Candidates</CandidatesHeaderText>
         {this.state.candidates ? (
           this.state.candidates
         ) : (
           <SpinnerWithInfo info={this.state.loadingText} />
         )}
-      </Container>
+      </Fragment>
     );
   }
 }

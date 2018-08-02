@@ -11,7 +11,7 @@ import Home from './layouts/home/Home';
 import Results from './layouts/results/Results';
 import Profile from './user/layouts/profile/Profile';
 import AddCandidateForm from './layouts/addCandidateForm/AddCandidateForm';
-import SetElectionTimeRange from './layouts/setElectionTimeRange/SetElectionTimeRange';
+import SetElectionTimeRangeContainer from './layouts/setElectionTimeRange/SetElectionTimeRangeContainer';
 import VerifyVoters from './layouts/verifyVoters/VerifyVoters.js';
 import RequestVerification from './layouts/requestVerification/RequestVerification.js';
 import HandleEmergency from './layouts/handleEmergency/HandleEmergency.js';
@@ -49,7 +49,7 @@ ReactDOM.render(
         <Route
           path="setElectionTimeRange"
           component={checkIfMetaMaskIsEnabled(
-            UserIsAuthenticated(SetElectionTimeRange)
+            UserIsAuthenticated(SetElectionTimeRangeContainer)
           )}
         />
         <Route

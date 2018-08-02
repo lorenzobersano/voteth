@@ -93,22 +93,20 @@ class Results extends Component {
 
   render() {
     return (
-      <main>
-        <Container>
-          <h2>Results</h2>
-          <ResultsHeading>
-            <h4>Candidates</h4>
-            <h4>Votes</h4>
-          </ResultsHeading>
-          {this.state.candidates ? (
-            this.state.candidates
-          ) : this.state.electionHasEnded ? (
-            <SpinnerWithInfo info={'Loading results...'} />
-          ) : (
-            <p>Results not available yet, come back later!</p>
-          )}
-        </Container>
-      </main>
+      <Fragment>
+        <h2>Results</h2>
+        <ResultsHeading>
+          <h4>Candidates</h4>
+          <h4>Votes</h4>
+        </ResultsHeading>
+        {this.state.candidates ? (
+          this.state.candidates
+        ) : this.state.electionHasEnded ? (
+          <SpinnerWithInfo info={'Loading results...'} />
+        ) : (
+          <p>Results not available yet, come back later!</p>
+        )}
+      </Fragment>
     );
   }
 }

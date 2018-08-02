@@ -77,6 +77,8 @@ class VerificationRequest extends Component {
       swal('Approved!', '', 'success');
     } catch (e) {
       console.log(e);
+    } finally {
+      !this.isCancelled && this.setState({ isApprovingRequest: false });
     }
   }
 
@@ -95,6 +97,8 @@ class VerificationRequest extends Component {
       }
     } catch (e) {
       console.log(e);
+    } finally {
+      !this.isCancelled && this.setState({ isDenyingRequest: false });
     }
   }
 

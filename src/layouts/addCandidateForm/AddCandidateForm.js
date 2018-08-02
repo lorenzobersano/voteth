@@ -97,27 +97,26 @@ class AddCandidateForm extends Component {
 
   render() {
     return (
-      <Container>
-        <Form onSubmit={this.handleSubmit}>
-          <Label htmlFor="name">Name</Label>
-          <TextBox type="text" name="name" required />
-          <Label htmlFor="party">Party</Label>
-          <TextBox type="text" name="party" required />
-          <Label htmlFor="politicalProgram">Political program</Label>
-          <TextArea name="politicalProgram" required />
-          <Label htmlFor="pic">Candidate pic</Label>
-          <PhotoUploadButton
-            type="file"
-            name="pic"
-            onChange={this.handlePicUpload}
-            required
-          />
-          <RightAlignedButton type="submit">Add candidate</RightAlignedButton>
-        </Form>
+      <Form onSubmit={this.handleSubmit}>
+        <Label htmlFor="name">Name</Label>
+        <TextBox type="text" name="name" required />
+        <Label htmlFor="party">Party</Label>
+        <TextBox type="text" name="party" required />
+        <Label htmlFor="politicalProgram">Political program</Label>
+        <TextArea name="politicalProgram" required />
+        <Label htmlFor="pic">Candidate pic</Label>
+        <PhotoUploadButton
+          type="file"
+          name="pic"
+          onChange={this.handlePicUpload}
+          required
+        />
+        <RightAlignedButton type="submit">Add candidate</RightAlignedButton>
+
         {this.state.isAddingCandidate && (
           <SpinnerWithInfo info={this.state.loaderText} />
         )}
-      </Container>
+      </Form>
     );
   }
 }

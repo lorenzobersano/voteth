@@ -66,8 +66,19 @@ export default class Candidate extends Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      isCommittingVote: false,
+      isRevealingVote: false
+    };
+
     this.handleVoteCommitClick = this.handleVoteCommitClick.bind(this);
     this.handleVoteRevealClick = this.handleVoteRevealClick.bind(this);
+  }
+
+  isCancelled = false;
+
+  componentWillUnmount() {
+    this.isCancelled = true;
   }
 
   async handleVoteCommitClick() {
@@ -82,6 +93,8 @@ export default class Candidate extends Component {
     });
 
     if (password) {
+      !this.isCancelled && this.setState({ isCommittingVote: true });
+
       const voteHash = soliditySha3(
         `'${this.props.name}-${this.props.voterAddress}-${password}'`
       );
@@ -96,6 +109,8 @@ export default class Candidate extends Component {
         });
       } catch (error) {
         console.log(error);
+      } finally {
+        !this.isCancelled && this.setState({ isCommittingVote: false });
       }
     }
   }
@@ -112,6 +127,8 @@ export default class Candidate extends Component {
     });
 
     if (password) {
+      !this.isCancelled && this.setState({ isRevealingVote: true });
+
       const vote = `${this.props.name}-${this.props.voterAddress}-${password}`;
       const voteHash = soliditySha3(`'${vote}'`);
 
@@ -133,6 +150,8 @@ export default class Candidate extends Component {
           title: 'Ooops, something went wrong!',
           text: error
         });
+      } finally {
+        !this.isCancelled && this.setState({ isRevealingVote: false });
       }
     }
   }
@@ -158,10 +177,11 @@ export default class Candidate extends Component {
               disabled={
                 (this.props.userIsVerified &&
                   this.props.voterHasCommittedVote) ||
-                this.props.voterAddress === null
+                this.props.voterAddress === null ||
+                this.state.isCommittingVote
               }
             >
-              Commit vote
+              {this.state.isCommittingVote ? 'Committing vote...' : 'Commit'}
             </Button>
           ) : (
             <Button
@@ -171,10 +191,11 @@ export default class Candidate extends Component {
               disabled={
                 (this.props.userIsVerified &&
                   this.props.voterHasRevealedVote) ||
-                this.props.voterAddress === null
+                this.props.voterAddress === null ||
+                this.state.isRevealingVote
               }
             >
-              Reveal vote
+              {this.state.isRevealingVote ? 'Revealing vote...' : 'Reveal'}
             </Button>
           )}
         </Actions>

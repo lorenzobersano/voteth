@@ -10,12 +10,12 @@ import styled from 'styled-components';
 // UI Components
 import LoginButtonContainer from '../../user/ui/loginbutton/LoginButtonContainer';
 import LogoutButtonContainer from '../../user/ui/logoutbutton/LogoutButtonContainer';
-import Container from '../container/Container';
 
 const Navbar = styled.nav`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-top: 1px solid #0000001e;
   border-bottom: 1px solid #0000001e;
 
   @media (max-width: 45rem) {
@@ -79,19 +79,17 @@ export default class Header extends Component {
     const OnlyGuestLinks = HiddenOnlyAuth(() => <LoginButtonContainer />);
 
     return (
-      <Container>
-        <Navbar>
-          <Link to="/">
-            <HeaderTitle>votΞ</HeaderTitle>
-          </Link>
-          <Links>
-            <NavLink to="/results">Results</NavLink>
-            <OnlyGuestLinks />
-            <OnlyAuthAdminLinks />
-            <OnlyAuthLinks />
-          </Links>
-        </Navbar>
-      </Container>
+      <Navbar>
+        <Link to="/">
+          <HeaderTitle>votΞ</HeaderTitle>
+        </Link>
+        <Links>
+          <NavLink to="/results">Results</NavLink>
+          <OnlyGuestLinks />
+          <OnlyAuthAdminLinks />
+          <OnlyAuthLinks />
+        </Links>
+      </Navbar>
     );
   }
 }

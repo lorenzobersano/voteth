@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
-import { Fragment } from 'react';
+import React from 'react';
+import { connect } from 'react-redux';
+import { isMNID, decode } from 'mnid';
 
 // UI Components
 import Header from './layouts/header/Header';
@@ -8,16 +9,30 @@ import Header from './layouts/header/Header';
 import './css/oswald.css';
 import './css/open-sans.css';
 import './App.css';
+import Container from './layouts/container/Container';
 
-class App extends Component {
-  render() {
-    return (
-      <Fragment>
-        <Header />
-        {this.props.children}
-      </Fragment>
-    );
-  }
-}
+const mapStateToProps = state => {
+  return {
+    authData: state.user.data
+  };
+};
 
-export default App;
+const App = props => (
+  <Container>
+    {props.authData && (
+      <p>
+        <strong>Current account:</strong>{' '}
+        {!isMNID(props.authData.address)
+          ? props.authData.address
+          : decode(props.authData.address).address}
+      </p>
+    )}
+    <Header />
+    {props.children}
+  </Container>
+);
+
+export default connect(
+  mapStateToProps,
+  null
+)(App);

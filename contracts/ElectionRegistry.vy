@@ -7,7 +7,10 @@ owner: public(address)
 def __init__():
     self.owner = msg.sender
     self.numOfPreviousBackends = 0
-    
+
+# @dev                   Changes the current Election contract
+# @param  _newBackend    The address of the updated contract
+# @return                True if _newBackend is different from backendContract, else false
 @public
 def changeBackend(_newBackend: address) -> bool:
     assert msg.sender == self.owner

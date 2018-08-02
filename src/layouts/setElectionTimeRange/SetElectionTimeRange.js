@@ -3,13 +3,11 @@ import styled from 'styled-components';
 import DateTimePicker from 'react-datetime-picker';
 
 import Label from './../label/Label';
-import Container from './../container/Container';
 import Form from './../form/Form';
 import RightAlignedButton from './../rightAlignedButton/RightAlignedButton';
 
 import { setElectionTimeRange } from './../../util/electionContractInteractions';
 import swal from 'sweetalert2';
-import checkIfMetaMaskIsEnabled from '../../util/checkIfMetaMaskIsEnabled';
 import { SpinnerWithInfo } from '../Spinner';
 
 const StyledDateTimePicker = styled(DateTimePicker)`
@@ -19,6 +17,7 @@ const StyledDateTimePicker = styled(DateTimePicker)`
 class SetElectionTimeRange extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       startTime: new Date(),
       endTime: new Date(),
@@ -50,6 +49,8 @@ class SetElectionTimeRange extends Component {
         this.props.authData.address
       );
 
+      this.props.electionTimeRangeSet(startTimeTimestamp, endTimeTimestamp);
+
       swal('Election time range correctly set!', '', 'success');
     } catch (e) {
       swal('Ooops!', `${e}`, 'error');
@@ -60,30 +61,29 @@ class SetElectionTimeRange extends Component {
 
   render() {
     return (
-      <Container>
-        <Form onSubmit={this.handleSubmit}>
-          <Label>Start time</Label>
-          <StyledDateTimePicker
-            name="startTimePicker"
-            onChange={date => this.setState({ startTime: date })}
-            value={this.state.startTime}
-            renderSecondHand={false}
-            required
-          />
-          <Label>End time</Label>
-          <StyledDateTimePicker
-            name="endTimePicker"
-            onChange={date => this.setState({ endTime: date })}
-            value={this.state.endTime}
-            renderSecondHand={false}
-            required
-          />
-          <RightAlignedButton type="submit">confirm</RightAlignedButton>
-        </Form>
+      <Form onSubmit={this.handleSubmit}>
+        <Label>Start time</Label>
+        <StyledDateTimePicker
+          name="startTimePicker"
+          onChange={date => this.setState({ startTime: date })}
+          value={this.state.startTime}
+          renderSecondHand={false}
+          required
+        />
+        <Label>End time</Label>
+        <StyledDateTimePicker
+          name="endTimePicker"
+          onChange={date => this.setState({ endTime: date })}
+          value={this.state.endTime}
+          renderSecondHand={false}
+          required
+        />
+        <RightAlignedButton type="submit">confirm</RightAlignedButton>
+
         {this.state.isSettingTimeRange && (
-          <SpinnerWithInfo info={this.state.loaderText} />
+          <SpinnerWithInfo info={'Setting Election start and end time...'} />
         )}
-      </Container>
+      </Form>
     );
   }
 }
