@@ -1,167 +1,237 @@
 const Election = artifacts.require('./Election.sol');
+const soliditySha3 = require('web3-utils').soliditySha3;
+
+const candidateName = 'Test Candidate',
+  candidateParty = 'Test Party',
+  candidatePoliticalProgram = 'Test program',
+  candidateIPFSHash = 'Test IPFS hash';
 
 contract('Election', accounts => {
-  it('should set the Election time range', () => {
+  it('should set the Election time range', async () => {
     const startTime = 12345678910,
       endTime = 2345678910;
 
-    return Election.deployed()
-      .then(instance => {
-        electionInstance = instance;
+    try {
+      const electionInstance = await Election.deployed();
 
-        return electionInstance.setElectionTimeRange(startTime, endTime, {
-          from: accounts[0]
-        });
-      })
-      .then(() => {
-        return electionInstance.getElectionTimeRange();
-      })
-      .then(timeRange => {
-        assert.equal(
-          timeRange[0],
-          startTime,
-          'The start time of the Election is incorrect.'
-        );
-
-        assert.equal(
-          timeRange[1],
-          endTime,
-          'The end time of the Election is incorrect.'
-        );
+      await electionInstance.setElectionTimeRange(startTime, endTime, {
+        from: accounts[0]
       });
+
+      const electionTimeRange = await electionInstance.getElectionTimeRange();
+
+      assert.equal(
+        electionTimeRange[0],
+        startTime,
+        'The start time of the Election is incorrect.'
+      );
+
+      assert.equal(
+        electionTimeRange[1],
+        endTime,
+        'The end time of the Election is incorrect.'
+      );
+    } catch (error) {
+      console.log(error);
+    }
   });
 
-  it('should add a Candidate', () => {
-    const candidateName = 'Test Candidate',
-      candidateParty = 'Test Party',
-      candidatePoliticalProgram = 'Test program',
-      candidateIPFSHash = 'Test IPFS hash';
+  it('should add a Candidate', async () => {
+    try {
+      const electionInstance = await Election.deployed();
 
-    return Election.deployed()
-      .then(instance => {
-        electionInstance = instance;
+      await electionInstance.addCandidate(
+        candidateIPFSHash,
+        candidateName,
+        candidateParty,
+        candidatePoliticalProgram,
+        { from: accounts[0] }
+      );
 
-        return electionInstance.addCandidate(
-          candidateIPFSHash,
-          candidateName,
-          candidateParty,
-          candidatePoliticalProgram,
-          { from: accounts[0] }
-        );
-      })
-      .then(() => {
-        return electionInstance.getCandidateAt(0);
-      })
-      .then(candidate => {
-        assert.equal(
-          candidate[0],
-          candidateIPFSHash,
-          'The IPFS hash of the candidate picture is incorrect.'
-        );
-        assert.equal(
-          candidate[1],
-          candidateName,
-          'The name of the candidate is incorrect.'
-        );
-        assert.equal(
-          candidate[2],
-          candidateParty,
-          'The party of the candidate picture is incorrect.'
-        );
-        assert.equal(
-          candidate[3],
-          candidatePoliticalProgram,
-          'The political program of the candidate picture is incorrect.'
-        );
-      });
+      const candidate = await electionInstance.getCandidateAt(0);
+
+      assert.equal(
+        candidate[0],
+        candidateIPFSHash,
+        'The IPFS hash of the candidate picture is incorrect.'
+      );
+
+      assert.equal(
+        candidate[1],
+        candidateName,
+        'The name of the candidate is incorrect.'
+      );
+
+      assert.equal(
+        candidate[2],
+        candidateParty,
+        'The party of the candidate picture is incorrect.'
+      );
+
+      assert.equal(
+        candidate[3],
+        candidatePoliticalProgram,
+        'The political program of the candidate picture is incorrect.'
+      );
+    } catch (error) {
+      console.log(error);
+    }
   });
 
-  it('should create a VerificationRequest', () => {
+  it('should create a VerificationRequest', async () => {
     const requesterAddress = accounts[0],
       requesterName = 'Test requester',
       requesterDocumentIPFSHash = 'Test IPFS hash';
 
-    return Election.deployed()
-      .then(instance => {
-        electionInstance = instance;
+    try {
+      const electionInstance = await Election.deployed();
 
-        return electionInstance.requestVerification(
-          requesterName,
-          requesterDocumentIPFSHash,
-          { from: requesterAddress }
-        );
-      })
-      .then(() => {
-        return electionInstance.getVerificationRequestAt(0);
-      })
-      .then(verificationRequest => {
-        assert.equal(
-          verificationRequest[0],
-          requesterAddress,
-          'The address of the requester is incorrect.'
-        );
+      await electionInstance.requestVerification(
+        requesterName,
+        requesterDocumentIPFSHash,
+        { from: requesterAddress }
+      );
 
-        assert.equal(
-          verificationRequest[1],
-          requesterName,
-          'The name of the requester is incorrect.'
-        );
+      const verificationRequest = await electionInstance.getVerificationRequestAt(
+        0
+      );
 
-        assert.equal(
-          verificationRequest[2],
-          requesterDocumentIPFSHash,
-          'The IPFS hash of the requester is incorrect.'
-        );
-      });
+      assert.equal(
+        verificationRequest[0],
+        requesterAddress,
+        'The address of the requester is incorrect.'
+      );
+
+      assert.equal(
+        verificationRequest[1],
+        requesterName,
+        'The name of the requester is incorrect.'
+      );
+
+      assert.equal(
+        verificationRequest[2],
+        requesterDocumentIPFSHash,
+        'The IPFS hash of the requester is incorrect.'
+      );
+    } catch (error) {
+      console.log(error);
+    }
   });
 
-  it('should verify a voter', () => {
-    const testExpirationDate = 34567891011;
-    return Election.deployed()
-      .then(instance => {
-        electionInstance = instance;
+  it('should verify a voter', async () => {
+    try {
+      const electionInstance = await Election.deployed();
 
-        return electionInstance.getVerificationRequestAt(0);
-      })
-      .then(verificationRequest => {
-        return electionInstance.verifyVoter(
-          verificationRequest[0],
-          testExpirationDate,
-          { from: accounts[0] }
-        );
-      })
-      .then(() => {
-        return electionInstance.getVerificationState({ from: accounts[0] });
-      })
-      .then(verificationState => {
-        assert.equal(
-          verificationState,
-          true,
-          'The requester shoukd have been verified.'
-        );
+      const verificationRequest = await electionInstance.getVerificationRequestAt(
+        0
+      );
+
+      await electionInstance.verifyVoter(accounts[0], verificationRequest[0], {
+        from: accounts[0]
       });
+
+      const verificationState = await electionInstance.verifiedVoter(
+        accounts[0]
+      );
+
+      assert.equal(
+        verificationState,
+        true,
+        'The requester should have been verified.'
+      );
+    } catch (error) {
+      console.log(error);
+    }
   });
 
-  it('should delete a given verification request', () => {
-    const posOfTheVerificationRequestToDelete = 0;
+  it('should delete a given verification request', async () => {
+    const requesterAddress = accounts[1],
+      requesterName = 'Test requester 2',
+      requesterDocumentIPFSHash = 'Test IPFS hash 2',
+      posOfTheVerificationRequestToDelete = 0;
 
-    return Election.deployed()
-      .then(instance => {
-        electionInstance = instance;
+    try {
+      const electionInstance = await Election.deployed();
 
-        return electionInstance.removeVerificationRequestAt(
-          posOfTheVerificationRequestToDelete
-        );
-      })
-      .then(() => {
-        return electionInstance.getNumberOfVerificationRequests();
-      })
-      .then(numOfVerificationRequests => {
-        assert.equal(
-          numOfVerificationRequests,
-          0,
-          'The list of verification requests should be empty.'
-        );
+      await electionInstance.requestVerification(
+        requesterName,
+        requesterDocumentIPFSHash,
+        { from: requesterAddress }
+      );
+
+      await electionInstance.removeVerificationRequestAt(
+        posOfTheVerificationRequestToDelete,
+        { from: accounts[0] }
+      );
+
+      const numOfVerificationRequests = await electionInstance.getNumberOfVerificationRequests();
+
+      assert.equal(
+        numOfVerificationRequests,
+        0,
+        'The list of verification requests should be empty.'
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  it('should commit a vote', async () => {
+    const startTime = parseInt((new Date().getTime() / 1000).toFixed(0)) - 10;
+    const endTime = parseInt((new Date().getTime() / 1000).toFixed(0)) + 10;
+
+    try {
+      const electionInstance = await Election.deployed();
+
+      await electionInstance.setElectionTimeRange(startTime, endTime, {
+        from: accounts[0]
       });
+
+      const voteHash = soliditySha3(
+        `'${candidateName}-${accounts[0]}-provaPassword'`
+      );
+
+      await electionInstance.commitVote(voteHash, { from: accounts[0] });
+
+      const committedVote = await electionInstance.committedVotes(accounts[0]);
+
+      assert.equal(
+        voteHash,
+        committedVote,
+        'The vote has not been committed correctly.'
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  it('should reveal a vote', async () => {
+    const startTime = parseInt((new Date().getTime() / 1000).toFixed(0)) - 20;
+    const endTime = parseInt((new Date().getTime() / 1000).toFixed(0)) - 10;
+
+    try {
+      const electionInstance = await Election.deployed();
+
+      await electionInstance.setElectionTimeRange(startTime, endTime, {
+        from: accounts[0]
+      });
+
+      const vote = `'${candidateName}-${accounts[0]}-provaPassword'`;
+      const voteHash = soliditySha3(vote);
+
+      await electionInstance.revealVote(vote, voteHash, { from: accounts[0] });
+
+      const numOfVotesForVotedCandidate = await electionInstance.getVotesForCandidate(
+        `'${candidateName}`
+      );
+
+      assert.equal(
+        numOfVotesForVotedCandidate.toNumber(),
+        1,
+        'The vote has not been revealed correctly.'
+      );
+    } catch (error) {
+      console.log(error);
+    }
   });
 });
