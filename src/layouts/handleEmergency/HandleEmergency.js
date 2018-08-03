@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import Switch from '@material-ui/core/Switch';
+import swal from 'sweetalert2';
 
 import { SpinnerWithInfo } from './../Spinner';
-import Container from './../container/Container';
 import Label from './../label/Label';
 import Form from './../form/Form';
 import RightAlignedButton from './../rightAlignedButton/RightAlignedButton';
@@ -12,7 +12,6 @@ import {
   changeBackend,
   toggleCircuitBreaker
 } from '../../util/electionContractInteractions';
-import swal from 'sweetalert2';
 
 const TextBox = styled.input`
   outline: none;
@@ -51,8 +50,6 @@ class HandleEmergency extends Component {
       console.log(error);
     }
   }
-
-  isCancelled = false;
 
   componentDidMount() {
     this.setToggleState();
@@ -101,48 +98,63 @@ class HandleEmergency extends Component {
 
   render() {
     return (
-      <Form onSubmit={this.handleSubmit}>
-        <Label htmlFor="emergencyStopSwitch">
-          Emergency stop status:{' '}
-          {this.state.isStopped ? (
-            <strong>STOPPED</strong>
-          ) : (
-            <strong>UNSTOPPED</strong>
-          )}
-        </Label>
-        <Switch
-          name="emergencyStopSwitch"
-          checked={this.state.isStopped}
-          onChange={this.handleCheck}
-        />
-        {this.state.isChangingEmergencyState && (
-          <SpinnerWithInfo
-            info={
-              this.state.isStopped
-                ? 'Reverting Election contract to a non-emergency state...'
-                : 'Enabling emergency stop...'
-            }
-          />
-        )}
-        <Label htmlFor="electionAddress">Fixed Election contract address</Label>
-        <TextBox
-          type="text"
-          disabled={!this.state.isStopped}
-          name="electionAddress"
-          required
-        />
-        <RightAlignedButton
-          style={submitButtonStyle}
-          disabled={!this.state.isStopped}
-          type="submit"
-        >
-          Submit
-        </RightAlignedButton>
+      <Fragment>
+        <h2>Handle emergency</h2>
+        <Form onSubmit={this.handleSubmit}>
+          <Label htmlFor="emergencyStopSwitch">
+            Emergency stop status:{' '}
+            {this.state.isStopped ? (
+              <strong>
+                STOPPED{' '}
+                <Switch
+                  name="emergencyStopSwitch"
+                  checked={this.state.isStopped}
+                  onChange={this.handleCheck}
+                />
+              </strong>
+            ) : (
+              <strong>
+                UNSTOPPED{' '}
+                <Switch
+                  name="emergencyStopSwitch"
+                  checked={this.state.isStopped}
+                  onChange={this.handleCheck}
+                />
+              </strong>
+            )}
+          </Label>
 
-        {this.state.isChangingBackendContract && (
-          <SpinnerWithInfo info={'Changing backend contract...'} />
-        )}
-      </Form>
+          {this.state.isChangingEmergencyState && (
+            <SpinnerWithInfo
+              info={
+                this.state.isStopped
+                  ? 'Reverting Election contract to a non-emergency state...'
+                  : 'Enabling emergency stop...'
+              }
+            />
+          )}
+          <Label htmlFor="electionAddress">
+            Fixed Election contract address
+          </Label>
+          <TextBox
+            type="text"
+            disabled={!this.state.isStopped}
+            name="electionAddress"
+            required
+          />
+          <RightAlignedButton
+            style={submitButtonStyle}
+            disabled={!this.state.isStopped}
+            type="submit"
+          >
+            Submit
+          </RightAlignedButton>
+
+          {this.state.isChangingBackendContract && (
+            <SpinnerWithInfo info={'Changing backend contract...'} />
+          )}
+        </Form>
+      </Fragment>
     );
   }
 }

@@ -10,7 +10,13 @@ const mapDispatchToProps = dispatch => {
   };
 };
 
+const mapStateToProps = state => {
+  return {
+    electionTimeRange: state.smartContracts.electionTimeRange
+  };
+};
+
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(SetElectionTimeRange);

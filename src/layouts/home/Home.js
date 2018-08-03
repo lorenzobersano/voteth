@@ -25,7 +25,8 @@ const CandidatesHeaderText = styled.h2`
 
 const mapStateToProps = state => {
   return {
-    authData: state.user.data
+    authData: state.user.data,
+    electionTimeRange: state.smartContracts.electionTimeRange
   };
 };
 
@@ -47,27 +48,13 @@ class Home extends Component {
   isCancelled = false;
 
   componentDidMount() {
-    this.getElectionCurrentInstance();
+    if (this.props.authData && isMNID(this.props.authData.address))
+      this.checkVoterState();
+    this.getAllCandidates(this.props.electionTimeRange);
   }
 
   componentWillUnmount() {
     this.isCancelled = true;
-  }
-
-  async getElectionCurrentInstance() {
-    if (this.currentElectionAddress === '')
-      try {
-        !this.isCancelled &&
-          this.setState({ loadingText: 'Retrieving Election...' });
-
-        this.currentElectionAddress = await getElectionCurrentInstance();
-
-        if (this.props.authData && isMNID(this.props.authData.address))
-          this.checkVoterState();
-        this.getElectionTimeRange();
-      } catch (error) {
-        console.log(error);
-      }
   }
 
   async checkVoterState() {
@@ -91,16 +78,6 @@ class Home extends Component {
           voterHasRevealedVote,
           userAddress: this.props.authData.address
         });
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  async getElectionTimeRange() {
-    let electionTimeRange = [];
-    try {
-      electionTimeRange = await getElectionTimeRange();
-      this.getAllCandidates(electionTimeRange);
     } catch (e) {
       console.log(e);
     }
@@ -140,8 +117,8 @@ class Home extends Component {
               voterHasCommittedVote={this.state.voterHasCommittedVote}
               voterHasRevealedVote={this.state.voterHasRevealedVote}
               voterAddress={this.state.userAddress}
-              electionStartTime={electionTimeRange[0].toNumber()}
-              electionEndTime={electionTimeRange[1].toNumber()}
+              electionStartTime={electionTimeRange.electionStartTime}
+              electionEndTime={electionTimeRange.electionEndTime}
             />
           );
         } catch (e) {
@@ -160,7 +137,7 @@ class Home extends Component {
         {this.state.candidates ? (
           this.state.candidates
         ) : (
-          <SpinnerWithInfo info={this.state.loadingText} />
+          <SpinnerWithInfo info={'Retrieving candidates...'} />
         )}
       </Fragment>
     );

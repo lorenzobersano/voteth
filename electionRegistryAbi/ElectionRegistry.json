@@ -1,0 +1,61 @@
+{
+  "abi": [
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "__init__",
+      "outputs": [],
+      "payable": false,
+      "type": "constructor"
+    },
+    {
+      "constant": false,
+      "gas": 106727,
+      "inputs": [
+        {
+          "name": "_newBackend",
+          "type": "address"
+        }
+      ],
+      "name": "changeBackend",
+      "outputs": [
+        {
+          "name": "out",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "gas": 513,
+      "inputs": [],
+      "name": "backendContract",
+      "outputs": [
+        {
+          "name": "out",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "gas": 543,
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "name": "out",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    }
+  ],
+  "bytecode":
+    "0x600035601c52740100000000000000000000000000000000000000006020526f7fffffffffffffffffffffffffffffff6040527fffffffffffffffffffffffffffffffff8000000000000000000000000000000060605274012a05f1fffffffffffffffffffffffffdabf41c006080527ffffffffffffffffffffffffed5fa0e000000000000000000000000000000000060a052341561009e57600080fd5b33600355600060025561024456600035601c52740100000000000000000000000000000000000000006020526f7fffffffffffffffffffffffffffffff6040527fffffffffffffffffffffffffffffffff8000000000000000000000000000000060605274012a05f1fffffffffffffffffffffffffdabf41c006080527ffffffffffffffffffffffffed5fa0e000000000000000000000000000000000060a05263eaecfca7600051141561014b57602060046101403734156100b457600080fd5b60043560205181106100c557600080fd5b5060035433146100d457600080fd5b6000546101405114151561013f576000546002546201f01881106100f757600080fd5b600160c052602060c0200155610140516000556060516001600254018060405190131561012357600080fd5b809190121561013157600080fd5b600255600160005260206000f35b600060005260206000f3005b636f752f09600051141561017157341561016457600080fd5b60005460005260206000f3005b638da5cb5b600051141561019757341561018a57600080fd5b60035460005260206000f3005b5b6100ac610244036100ac6000396100ac610244036000f3"
+}

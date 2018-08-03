@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 
 import { uploadToIPFS } from './../../util/ipfsUtils';
@@ -97,26 +97,29 @@ class AddCandidateForm extends Component {
 
   render() {
     return (
-      <Form onSubmit={this.handleSubmit}>
-        <Label htmlFor="name">Name</Label>
-        <TextBox type="text" name="name" required />
-        <Label htmlFor="party">Party</Label>
-        <TextBox type="text" name="party" required />
-        <Label htmlFor="politicalProgram">Political program</Label>
-        <TextArea name="politicalProgram" required />
-        <Label htmlFor="pic">Candidate pic</Label>
-        <PhotoUploadButton
-          type="file"
-          name="pic"
-          onChange={this.handlePicUpload}
-          required
-        />
-        <RightAlignedButton type="submit">Add candidate</RightAlignedButton>
+      <Fragment>
+        <h2>Add candidate</h2>
+        <Form onSubmit={this.handleSubmit}>
+          <Label htmlFor="name">Name</Label>
+          <TextBox type="text" name="name" required />
+          <Label htmlFor="party">Party</Label>
+          <TextBox type="text" name="party" required />
+          <Label htmlFor="politicalProgram">Political program</Label>
+          <TextArea name="politicalProgram" required />
+          <Label htmlFor="pic">Candidate pic</Label>
+          <PhotoUploadButton
+            type="file"
+            name="pic"
+            onChange={this.handlePicUpload}
+            required
+          />
+          <RightAlignedButton type="submit">Add candidate</RightAlignedButton>
 
-        {this.state.isAddingCandidate && (
-          <SpinnerWithInfo info={this.state.loaderText} />
-        )}
-      </Form>
+          {this.state.isAddingCandidate && (
+            <SpinnerWithInfo info={this.state.loaderText} />
+          )}
+        </Form>
+      </Fragment>
     );
   }
 }

@@ -1,15 +1,16 @@
 import React, { Component, Fragment } from 'react';
 import swal from 'sweetalert2';
+import { MNID } from 'uport-connect';
 
+// Local utils
 import {
   requestVerification,
   getVerificationState
 } from './../../util/electionContractInteractions';
 import { uploadToIPFS } from './../../util/ipfsUtils';
 
-import Container from '../container/Container';
+// UI Components
 import RightAlignedButton from './../rightAlignedButton/RightAlignedButton';
-import { MNID } from '../../../node_modules/uport-connect';
 
 class RequestVerification extends Component {
   constructor(props) {

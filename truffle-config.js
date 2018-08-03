@@ -11,13 +11,6 @@ module.exports = {
       port: 8545,
       network_id: '*'
     },
-    rinkebyLocal: {
-      host: 'localhost',
-      port: 7545,
-      network_id: '4',
-      from: '0xe3a259a2d2f06457f9f7ae4365e142cd58043fff',
-      gas: 4612388 // Gas limit used for deploys
-    },
     rinkeby: {
       provider: new HDWalletProvider(
         process.env.MNEMONIC,

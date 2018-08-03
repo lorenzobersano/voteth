@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 
 // UI Components
-import Container from '../../../layouts/container/Container';
 import { getVerificationState } from '../../../util/electionContractInteractions';
 import { decode } from '../../../../node_modules/mnid';
 
@@ -11,7 +10,7 @@ const UserInfoAndVerificationState = styled.div`
   flex-direction: column;
   align-items: center;
   align-self: center;
-  padding: 1rem;
+  padding: 1rem 1rem 0 1rem;
   margin: 2rem auto;
   border-radius: 4px;
   border: 1px solid #0000001e;
@@ -24,15 +23,16 @@ const UserInfoAndVerificationState = styled.div`
 const UserInfo = styled.div`
   display: flex;
   align-items: center;
+  align-self: flex-start;
   font-size: 1.5rem;
 `;
 
 const Avatar = styled.img`
-  width: 120px;
-  height: 120px;
+  width: 110px;
+  height: 110px;
   border-radius: 50%;
   object-fit: cover;
-  margin-right: 0.5rem;
+  margin-right: 1rem;
 `;
 
 class Profile extends Component {
@@ -76,9 +76,11 @@ class Profile extends Component {
           </p>
         </UserInfo>
         {this.state.userIsVerified ? (
-          <p>✅ You're a verified voter, go on and be part of votΞ!</p>
+          <p style={{ color: 'gray' }}>
+            ✅ You're a verified voter, go on and be part of votΞ!
+          </p>
         ) : (
-          <p>
+          <p style={{ color: 'gray' }}>
             ❌ Looks like you're not allowed to vote yet, go on and ask for
             verification!
           </p>

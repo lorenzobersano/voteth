@@ -26,6 +26,13 @@ const Navbar = styled.nav`
 
 const NavLink = styled(Link)`
   padding-right: 0.5rem;
+  color: #555;
+  height: 100%;
+
+  :hover,
+  :active {
+    color: black;
+  }
 
   @media (max-width: 768px) {
     padding-bottom: 0.5rem;

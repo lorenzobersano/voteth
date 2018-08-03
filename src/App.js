@@ -1,6 +1,9 @@
-import React from 'react';
-import { connect } from 'react-redux';
+import React, { Component, Fragment } from 'react';
 import { isMNID, decode } from 'mnid';
+import styled from 'styled-components';
+import moment from 'moment';
+
+import { electionAddress } from './util/electionContractInteractions';
 
 // UI Components
 import Header from './layouts/header/Header';
@@ -10,29 +13,96 @@ import './css/oswald.css';
 import './css/open-sans.css';
 import './App.css';
 import Container from './layouts/container/Container';
+import {
+  getElectionTimeRange,
+  getElectionCurrentInstance
+} from './util/electionContractInteractions';
+import { SpinnerWithInfo } from './layouts/Spinner';
 
-const mapStateToProps = state => {
-  return {
-    authData: state.user.data
-  };
-};
+const FullHeightContainer = styled(Container)`
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
-const App = props => (
-  <Container>
-    {props.authData && (
-      <p>
-        <strong>Current account:</strong>{' '}
-        {!isMNID(props.authData.address)
-          ? props.authData.address
-          : decode(props.authData.address).address}
-      </p>
-    )}
-    <Header />
-    {props.children}
-  </Container>
-);
+class App extends Component {
+  constructor(props) {
+    super(props);
 
-export default connect(
-  mapStateToProps,
-  null
-)(App);
+    this.state = {
+      isRetrievingElection: true
+    };
+  }
+
+  componentDidMount() {
+    this.getCurrentBackend();
+  }
+
+  async getCurrentBackend() {
+    if (electionAddress === undefined)
+      try {
+        this.setState({ isRetrievingElection: true });
+
+        this.currentElectionAddress = await getElectionCurrentInstance();
+
+        const electionTimeRange = await getElectionTimeRange();
+
+        this.props.electionTimeRangeSet(
+          electionTimeRange[0].toNumber(),
+          electionTimeRange[1].toNumber()
+        );
+      } catch (error) {
+        console.log(error);
+      } finally {
+        this.setState({ isRetrievingElection: false });
+      }
+  }
+
+  render() {
+    return (
+      <main>
+        {!this.state.isRetrievingElection ? (
+          <Container>
+            {this.props.authData && (
+              <p>
+                <strong>Current account:</strong>{' '}
+                {!isMNID(this.props.authData.address)
+                  ? this.props.authData.address
+                  : decode(this.props.authData.address).address}
+              </p>
+            )}
+            {this.props.electionTimeRange &&
+              this.props.electionTimeRange.electionStartTime !== 0 &&
+              this.props.electionTimeRange.electionEndTime !== 0 && (
+                <p>
+                  Election will start{' '}
+                  <strong>
+                    {moment
+                      .unix(this.props.electionTimeRange.electionStartTime)
+                      .local()
+                      .format('D/M/YYYY hh:mm A')}{' '}
+                  </strong>{' '}
+                  and will end{' '}
+                  <strong>
+                    {moment
+                      .unix(this.props.electionTimeRange.electionEndTime)
+                      .local()
+                      .format('D/M/YYYY hh:mm A')}{' '}
+                  </strong>
+                </p>
+              )}
+            <Header />
+            {this.props.children}
+          </Container>
+        ) : (
+          <FullHeightContainer>
+            <SpinnerWithInfo info={'Retrieving Election...'} />
+          </FullHeightContainer>
+        )}
+      </main>
+    );
+  }
+}
+
+export default App;

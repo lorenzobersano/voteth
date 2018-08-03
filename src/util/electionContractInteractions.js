@@ -3,12 +3,13 @@ import { uport } from './connectors';
 import Contract from 'truffle-contract';
 
 import electionArtifact from './../../build/contracts/Election.json';
-import electionRegistryArtifact from './../../build/contracts/ElectionRegistry.json';
+import electionRegistryArtifact from './../../electionRegistryAbi/ElectionRegistry.json';
 
 import deployedAddresses from './electionRegistryAddress.json';
 
 const Election = Contract(electionArtifact);
-let electionAddress, electionInstance;
+export let electionAddress;
+let electionInstance;
 let web3Provider;
 
 if (typeof web3 !== 'undefined') {
@@ -24,6 +25,22 @@ web3 = new Web3(web3Provider);
 const ElectionRegistry = web3.eth.contract(electionRegistryArtifact.abi);
 let ElectionEventWatcher;
 Election.setProvider(web3.currentProvider);
+
+const initializeElectionAddressAndInstance = async backendAddress => {
+  electionAddress = backendAddress;
+
+  try {
+    electionInstance = await Election.at(electionAddress);
+  } catch (error) {
+    console.log(error);
+  }
+
+  ElectionEventWatcher = web3.eth
+    .contract(electionArtifact.abi)
+    .at(electionAddress);
+
+  return Promise.resolve();
+};
 
 export const getElectionCurrentInstance = () => {
   return new Promise((resolve, reject) => {
@@ -84,6 +101,8 @@ export const changeBackend = (newBackendAddress, sender) => {
       { from: sender },
       async (err, result) => {
         if (err) reject(err);
+
+        await initializeElectionAddressAndInstance(newBackendAddress);
 
         resolve(result);
       }
@@ -390,8 +409,6 @@ export const toggleCircuitBreaker = sender => {
 
       circuitBreakerToggledEvent.watch((err, res) => {
         if (err) reject(err);
-
-        console.log(res);
 
         circuitBreakerToggledEvent.stopWatching();
         resolve(res);

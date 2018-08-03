@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import DateTimePicker from 'react-datetime-picker';
+import moment from 'moment';
 
 import Label from './../label/Label';
 import Form from './../form/Form';
@@ -61,29 +62,38 @@ class SetElectionTimeRange extends Component {
 
   render() {
     return (
-      <Form onSubmit={this.handleSubmit}>
-        <Label>Start time</Label>
-        <StyledDateTimePicker
-          name="startTimePicker"
-          onChange={date => this.setState({ startTime: date })}
-          value={this.state.startTime}
-          renderSecondHand={false}
-          required
-        />
-        <Label>End time</Label>
-        <StyledDateTimePicker
-          name="endTimePicker"
-          onChange={date => this.setState({ endTime: date })}
-          value={this.state.endTime}
-          renderSecondHand={false}
-          required
-        />
-        <RightAlignedButton type="submit">confirm</RightAlignedButton>
+      <Fragment>
+        <h2>Set election time range</h2>
+        <Form onSubmit={this.handleSubmit}>
+          <Label>Start time</Label>
+          <StyledDateTimePicker
+            name="startTimePicker"
+            onChange={date => this.setState({ startTime: date })}
+            value={moment
+              .unix(this.props.electionTimeRange.electionStartTime)
+              .local()
+              .toDate()}
+            renderSecondHand={false}
+            required
+          />
+          <Label>End time</Label>
+          <StyledDateTimePicker
+            name="endTimePicker"
+            onChange={date => this.setState({ endTime: date })}
+            value={moment
+              .unix(this.props.electionTimeRange.electionEndTime)
+              .local()
+              .toDate()}
+            renderSecondHand={false}
+            required
+          />
+          <RightAlignedButton type="submit">confirm</RightAlignedButton>
 
-        {this.state.isSettingTimeRange && (
-          <SpinnerWithInfo info={'Setting Election start and end time...'} />
-        )}
-      </Form>
+          {this.state.isSettingTimeRange && (
+            <SpinnerWithInfo info={'Setting Election start and end time...'} />
+          )}
+        </Form>
+      </Fragment>
     );
   }
 }

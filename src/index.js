@@ -6,7 +6,7 @@ import { syncHistoryWithStore } from 'react-router-redux';
 import { UserIsAuthenticated } from './util/wrappers.js';
 
 // Layouts
-import App from './App';
+import AppContainer from './AppContainer';
 import Home from './layouts/home/Home';
 import Results from './layouts/results/Results';
 import Profile from './user/layouts/profile/Profile';
@@ -25,7 +25,7 @@ const history = syncHistoryWithStore(browserHistory, store);
 ReactDOM.render(
   <Provider store={store}>
     <Router history={history}>
-      <Route path="/" component={App}>
+      <Route path="/" component={AppContainer}>
         <IndexRoute component={Home} />
         <Route path="results" component={Results} />
         <Route
