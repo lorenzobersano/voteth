@@ -5,7 +5,7 @@ import Contract from 'truffle-contract';
 import electionArtifact from './../../build/contracts/Election.json';
 import electionRegistryArtifact from './../../electionRegistryAbi/ElectionRegistry.json';
 
-import deployedAddresses from './electionRegistryAddress.json';
+import deployedRegistry from './electionRegistryUtils/electionRegistryAddress.json';
 
 export let electionAddress;
 let electionInstance, web3Provider, ElectionRegistry, ElectionEventWatcher;
@@ -42,8 +42,8 @@ const initializeElectionAddressAndInstance = async backendAddress => {
 
 export const getElectionCurrentInstance = () => {
   return new Promise((resolve, reject) => {
-    if (deployedAddresses.ElectionRegistry !== '') {
-      const instance = ElectionRegistry.at(deployedAddresses.ElectionRegistry);
+    if (deployedRegistry.address !== '') {
+      const instance = ElectionRegistry.at(deployedRegistry.address);
       instance.backendContract(async (err, backendContract) => {
         if (err) reject(err);
 
@@ -64,32 +64,6 @@ export const getElectionCurrentInstance = () => {
         resolve(backendContract);
       });
     }
-    // else {
-    //   ElectionRegistry.new(
-    //     {
-    //       from: web3.eth.accounts[0],
-    //       data: electionRegistryArtifact.bytecode
-    //     },
-    //     (err, electionRegistryInstance) => {
-    //       if (err) reject(err);
-
-    //       if (electionRegistryInstance.address) {
-    //         console.log(electionRegistryInstance.address); // the contract address
-
-    //         electionRegistryInstance.changeBackend(
-    //           '0x73d25ab57ac4dc5a1ffe5c6140e172f4f9c7f4d1',
-    //           {
-    //             from: web3.eth.accounts[0]
-    //           },
-    //           (err, res) => {
-    //             if (err) reject(err);
-    //             resolve();
-    //           }
-    //         );
-    //       }
-    //     }
-    //   );
-    // }
   });
 };
 
