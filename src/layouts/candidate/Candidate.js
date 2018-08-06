@@ -99,6 +99,12 @@ export default class Candidate extends Component {
         `'${this.props.name}-${this.props.voterAddress}-${password}'`
       );
 
+      swal({
+        type: 'info',
+        title: 'Please open the uPort app on your smartphone',
+        text: 'Confirm the transaction to commit vote'
+      });
+
       try {
         await commitVote(voteHash, this.props.voterAddress);
 
@@ -131,6 +137,12 @@ export default class Candidate extends Component {
 
       const vote = `${this.props.name}-${this.props.voterAddress}-${password}`;
       const voteHash = soliditySha3(`'${vote}'`);
+
+      swal({
+        type: 'info',
+        title: 'Please open the uPort app on your smartphone',
+        text: 'Confirm the transaction to reveal vote'
+      });
 
       try {
         const result = await revealVote(
@@ -178,7 +190,9 @@ export default class Candidate extends Component {
                 (this.props.userIsVerified &&
                   this.props.voterHasCommittedVote) ||
                 this.props.voterAddress === null ||
-                this.state.isCommittingVote
+                this.state.isCommittingVote ||
+                parseInt(new Date().getTime() / 1000).toFixed(0) <
+                  this.props.electionStartTime
               }
             >
               {this.state.isCommittingVote ? 'Committing vote...' : 'Commit'}

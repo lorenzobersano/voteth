@@ -12,7 +12,6 @@ contract Election {
     bool    public stopped;
 
     modifier stopInEmergency { require(!stopped); _; }
-    modifier onlyInEmergency { require(stopped); _; }
 
     modifier onlyVerifiedVoter {
         require(verifiedVoter[msg.sender] == true);
@@ -77,7 +76,7 @@ contract Election {
     mapping (string => uint)                revealedVotes;
     mapping (address => bytes32)    public  committedVotes;
     
-    VerificationRequest[]   verificationRequests;
+    VerificationRequest[]   verificationRequests;   
     Candidate[]             candidates;
 
     constructor () public {
@@ -138,10 +137,9 @@ contract Election {
     
     /** @dev                Removes the Candidate from the list of candidates at a specified index
      *  @param  _position   Position in the list of candidates
-     *  @return _result     Always true
      */
     function removeCandidateAt(uint _position) public onlyOwner electionIsNotOpenedYet {
-        for (uint i = _position; i < candidates.length - 1; i++){
+        for (uint i = _position; i < candidates.length - 1; i++) {
             candidates[i] = candidates[i + 1];
         }
     
@@ -199,7 +197,7 @@ contract Election {
      *  @return _requesterName          The name of the user who created the request
      *  @return _votingDocumentIPFSHash The hash of the document needed to verify the user stored on IPFS
      */
-    function getVerificationRequestAt(uint _position) public view onlyOwner electionIsNotOpenedYet returns (address _requester, string _requesterName, string _votingDocumentIPFSHash) {
+    function getVerificationRequestAt(uint _position) public view electionIsNotOpenedYet returns (address _requester, string _requesterName, string _votingDocumentIPFSHash) {
         return (
             verificationRequests[_position].requester,
             verificationRequests[_position].requesterName,

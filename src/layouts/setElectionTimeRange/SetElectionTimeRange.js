@@ -20,8 +20,21 @@ class SetElectionTimeRange extends Component {
     super(props);
 
     this.state = {
-      startTime: new Date(),
-      endTime: new Date(),
+      startTime:
+        props.electionTimeRange &&
+        props.electionTimeRange.electionStartTime !== 0
+          ? moment
+              .unix(this.props.electionTimeRange.electionStartTime)
+              .local()
+              .toDate()
+          : new Date(),
+      endTime:
+        props.electionTimeRange && props.electionTimeRange.electionEndTime !== 0
+          ? moment
+              .unix(this.props.electionTimeRange.electionEndTime)
+              .local()
+              .toDate()
+          : new Date(),
       isSettingTimeRange: false
     };
 
@@ -29,6 +42,12 @@ class SetElectionTimeRange extends Component {
   }
 
   isCancelled = false;
+
+  componentDidMount() {}
+
+  componentWillUnmount() {
+    this.isCancelled = true;
+  }
 
   async handleSubmit(e) {
     e.preventDefault();
@@ -69,10 +88,7 @@ class SetElectionTimeRange extends Component {
           <StyledDateTimePicker
             name="startTimePicker"
             onChange={date => this.setState({ startTime: date })}
-            value={moment
-              .unix(this.props.electionTimeRange.electionStartTime)
-              .local()
-              .toDate()}
+            value={this.state.startTime}
             renderSecondHand={false}
             required
           />
@@ -80,10 +96,7 @@ class SetElectionTimeRange extends Component {
           <StyledDateTimePicker
             name="endTimePicker"
             onChange={date => this.setState({ endTime: date })}
-            value={moment
-              .unix(this.props.electionTimeRange.electionEndTime)
-              .local()
-              .toDate()}
+            value={this.state.endTime}
             renderSecondHand={false}
             required
           />

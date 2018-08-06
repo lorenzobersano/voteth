@@ -1,23 +1,35 @@
 import React, { Component, Fragment } from 'react';
+import { connect } from 'react-redux';
 import swal from 'sweetalert2';
 import { MNID } from 'uport-connect';
 
 // Local utils
 import {
   requestVerification,
-  getVerificationState
+  getVerificationState,
+  checkIfUserHasRequestedVerification
 } from './../../util/electionContractInteractions';
 import { uploadToIPFS } from './../../util/ipfsUtils';
+import { SpinnerWithInfo } from './../Spinner';
 
 // UI Components
 import RightAlignedButton from './../rightAlignedButton/RightAlignedButton';
+
+const mapStateToProps = state => {
+  return {
+    electionStartTime: state.smartContracts.electionTimeRange.electionStartTime
+  };
+};
 
 class RequestVerification extends Component {
   constructor(props) {
     super(props);
     this.state = {
       image: null,
-      userIsVerified: false
+      userIsVerified: false,
+      electionHasAlreadyStarted: false,
+      isUploadingOnIpfs: false,
+      userHasAlreadyAskedForVerification: false
     };
 
     this.handleClick = this.handleClick.bind(this);
@@ -32,10 +44,38 @@ class RequestVerification extends Component {
         MNID.decode(this.props.authData.address).address
       );
 
+      const userHasAlreadyAskedForVerification = await checkIfUserHasRequestedVerification(
+        MNID.decode(this.props.authData.address).address
+      );
+
+      !this.isCancelled &&
+        this.setState({ userHasAlreadyAskedForVerification });
+
+      parseInt((new Date().getTime() / 1000).toFixed(0)) >=
+        this.props.electionStartTime &&
+        !this.isCancelled &&
+        this.setState({ electionHasAlreadyStarted: true });
+
       !this.isCancelled && this.setState({ userIsVerified });
     } catch (error) {
-      console.log(e);
+      console.log(error);
     }
+  }
+
+  componentWillUnmount() {
+    this.isCancelled = true;
+  }
+
+  verificationState() {
+    if (this.state.userIsVerified) return <p>You're already verified!</p>;
+    if (this.state.electionHasAlreadyStarted)
+      return (
+        <p>
+          Election has already started, you cannot ask for verification now.
+        </p>
+      );
+    if (this.state.userHasAlreadyAskedVorVerification)
+      return <p>You have already asked for verification.</p>;
   }
 
   async handleClick(e) {
@@ -44,7 +84,17 @@ class RequestVerification extends Component {
     if (!this.state.image) swal('Select an image to submit!', '', 'warning');
     else {
       try {
+        !this.isCancelled && this.setState({ isUploadingOnIpfs: true });
+
         const picHash = await uploadToIPFS(this.state.image);
+
+        !this.isCancelled && this.setState({ isUploadingOnIpfs: false });
+
+        swal({
+          type: 'info',
+          title: 'Please open the uPort app on your smartphone',
+          text: 'Confirm the transaction to request for verification'
+        });
 
         await requestVerification(
           this.props.authData.name,
@@ -76,7 +126,9 @@ class RequestVerification extends Component {
     return (
       <Fragment>
         <h2>Request verification</h2>
-        {!this.state.userIsVerified ? (
+        {!this.state.userIsVerified &&
+        !this.state.electionHasAlreadyStarted &&
+        !this.state.userHasAlreadyAskedForVerification ? (
           <Fragment>
             <p>Upload a photo of your ID Document to get the ability to vote</p>
             <input
@@ -90,11 +142,18 @@ class RequestVerification extends Component {
             </RightAlignedButton>
           </Fragment>
         ) : (
-          <p>You're already verified!</p>
+          this.verificationState()
+        )}
+
+        {this.state.isUploadingOnIpfs && (
+          <SpinnerWithInfo info={'Uploading ID Document on IPFS...'} />
         )}
       </Fragment>
     );
   }
 }
 
-export default RequestVerification;
+export default connect(
+  mapStateToProps,
+  null
+)(RequestVerification);

@@ -87,8 +87,10 @@ class HandleEmergency extends Component {
         this.props.authData.address
       );
 
-      if (result)
+      if (result) {
+        this.setToggleState();
         swal('Ok!', `Changed contract location to ${newAddress}`, 'success');
+      }
     } catch (error) {
       swal('Oooops!', error, 'error');
     } finally {

@@ -7,6 +7,8 @@ import {
 } from '../../util/wrappers.js';
 import styled from 'styled-components';
 
+import { checkIfStopped } from './../../util/electionContractInteractions';
+
 // UI Components
 import LoginButtonContainer from '../../user/ui/loginbutton/LoginButtonContainer';
 import LogoutButtonContainer from '../../user/ui/logoutbutton/LogoutButtonContainer';
@@ -56,14 +58,60 @@ const Links = styled.div`
 `;
 
 export default class Header extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      emergencyStop: false
+    };
+  }
+
+  isCancelled = false;
+
+  async checkIfContractIsInEmergencyStop() {
+    try {
+      const emergencyStop = await checkIfStopped();
+
+      !this.isCancelled &&
+        ((!this.state.emergencyStop && emergencyStop) ||
+          (this.state.emergencyStop && !emergencyStop)) &&
+        this.setState({ emergencyStop });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  componentDidMount() {
+    this.checkIfContractIsInEmergencyStop();
+
+    setInterval(() => {
+      this.checkIfContractIsInEmergencyStop();
+    }, 2000);
+  }
+
+  componentWillUnmount() {
+    this.isCancelled = true;
+  }
+
   render() {
     const OnlyAuthLinks = VisibleOnlyAuth(() => [
-      <NavLink to="/profile" key={'profile'}>
-        Profile
-      </NavLink>,
-      <NavLink to="/requestVerification" key={'requestVerification'}>
-        Request verification
-      </NavLink>,
+      this.state.emergencyStop ? (
+        <a
+          key={'emergencyStop'}
+          style={{ color: 'red', paddingRight: '0.5rem' }}
+        >
+          Emergency stop!
+        </a>
+      ) : (
+        [
+          <NavLink to="/profile" key={'profile'}>
+            Profile
+          </NavLink>,
+          <NavLink to="/requestVerification" key={'requestVerification'}>
+            Request verification
+          </NavLink>
+        ]
+      ),
       <LogoutButtonContainer key={'logout'} />
     ]);
 
@@ -91,7 +139,9 @@ export default class Header extends Component {
           <HeaderTitle>votΞ</HeaderTitle>
         </Link>
         <Links>
-          <NavLink to="/results">Results</NavLink>
+          {!this.state.emergencyStop && (
+            <NavLink to="/results">Results</NavLink>
+          )}
           <OnlyGuestLinks />
           <OnlyAuthAdminLinks />
           <OnlyAuthLinks />

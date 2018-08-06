@@ -7,24 +7,22 @@ import electionRegistryArtifact from './../../electionRegistryAbi/ElectionRegist
 
 import deployedAddresses from './electionRegistryAddress.json';
 
-const Election = Contract(electionArtifact);
 export let electionAddress;
-let electionInstance;
-let web3Provider;
+let electionInstance, web3Provider, ElectionRegistry, ElectionEventWatcher;
+const Election = Contract(electionArtifact);
 
 if (typeof web3 !== 'undefined') {
   web3Provider = web3.currentProvider;
+
+  web3 = new Web3(web3Provider);
+
+  ElectionRegistry = web3.eth.contract(electionRegistryArtifact.abi);
+  Election.setProvider(web3.currentProvider);
+} else {
+  // set the provider you want from Web3.providers
+  // web3Provider = new Web3.providers.HttpProvider('http://localhost:8545');
+  // alert('Pls install metamask!');
 }
-// else {
-//   // set the provider you want from Web3.providers
-//   web3Provider = new Web3.providers.HttpProvider('http://localhost:8545');
-// }
-
-web3 = new Web3(web3Provider);
-
-const ElectionRegistry = web3.eth.contract(electionRegistryArtifact.abi);
-let ElectionEventWatcher;
-Election.setProvider(web3.currentProvider);
 
 const initializeElectionAddressAndInstance = async backendAddress => {
   electionAddress = backendAddress;
@@ -49,17 +47,19 @@ export const getElectionCurrentInstance = () => {
       instance.backendContract(async (err, backendContract) => {
         if (err) reject(err);
 
-        electionAddress = backendContract;
+        if (electionAddress !== backendContract) {
+          electionAddress = backendContract;
 
-        try {
-          electionInstance = await Election.at(electionAddress);
-        } catch (error) {
-          reject(error);
+          try {
+            electionInstance = await Election.at(electionAddress);
+          } catch (error) {
+            reject(error);
+          }
+
+          ElectionEventWatcher = web3.eth
+            .contract(electionArtifact.abi)
+            .at(electionAddress);
         }
-
-        ElectionEventWatcher = web3.eth
-          .contract(electionArtifact.abi)
-          .at(electionAddress);
 
         resolve(backendContract);
       });
@@ -93,6 +93,40 @@ export const getElectionCurrentInstance = () => {
   });
 };
 
+export const toggleCircuitBreaker = sender => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await electionInstance.toggleCircuitBreaker({ from: sender });
+
+      const circuitBreakerToggledEvent = ElectionEventWatcher.CircuitBreakerToggled(
+        {},
+        { fromBlock: 'latest', toBlock: 'latest' }
+      );
+
+      circuitBreakerToggledEvent.watch((err, res) => {
+        if (err) reject(err);
+
+        circuitBreakerToggledEvent.stopWatching();
+        resolve(res);
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export const checkIfStopped = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const result = await electionInstance.stopped();
+
+      resolve(result);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 export const changeBackend = (newBackendAddress, sender) => {
   return new Promise((resolve, reject) => {
     const instance = ElectionRegistry.at(deployedAddresses.ElectionRegistry);
@@ -101,6 +135,10 @@ export const changeBackend = (newBackendAddress, sender) => {
       { from: sender },
       async (err, result) => {
         if (err) reject(err);
+
+        const res = await toggleCircuitBreaker(sender);
+
+        console.log(res);
 
         await initializeElectionAddressAndInstance(newBackendAddress);
 
@@ -261,6 +299,26 @@ export const removeVerificationRequestAt = (pos, sender) => {
   });
 };
 
+export const checkIfUserHasRequestedVerification = sender => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const numOfVerificationRequests = await electionInstance.getNumberOfVerificationRequests();
+
+      for (let i = 0; i < numOfVerificationRequests.toNumber(); i++) {
+        const verificationRequest = await electionInstance.getVerificationRequestAt(
+          i
+        );
+
+        verificationRequest[0] == sender && resolve(true);
+      }
+
+      resolve(false);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 export const getVerificationState = sender => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -389,40 +447,6 @@ export const getElectionTimeRange = () => {
   return new Promise(async (resolve, reject) => {
     try {
       const result = await electionInstance.getElectionTimeRange();
-
-      resolve(result);
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
-
-export const toggleCircuitBreaker = sender => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      await electionInstance.toggleCircuitBreaker({ from: sender });
-
-      const circuitBreakerToggledEvent = ElectionEventWatcher.CircuitBreakerToggled(
-        {},
-        { fromBlock: 'latest', toBlock: 'latest' }
-      );
-
-      circuitBreakerToggledEvent.watch((err, res) => {
-        if (err) reject(err);
-
-        circuitBreakerToggledEvent.stopWatching();
-        resolve(res);
-      });
-    } catch (e) {
-      reject(e);
-    }
-  });
-};
-
-export const checkIfStopped = () => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const result = await electionInstance.stopped();
 
       resolve(result);
     } catch (e) {

@@ -1,9 +1,7 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { isMNID, decode } from 'mnid';
 import styled from 'styled-components';
 import moment from 'moment';
-
-import { electionAddress } from './util/electionContractInteractions';
 
 // UI Components
 import Header from './layouts/header/Header';
@@ -18,6 +16,7 @@ import {
   getElectionCurrentInstance
 } from './util/electionContractInteractions';
 import { SpinnerWithInfo } from './layouts/Spinner';
+import MetaMaskFox from './layouts/MetaMaskFox';
 
 const FullHeightContainer = styled(Container)`
   height: 100vh;
@@ -31,38 +30,65 @@ class App extends Component {
     super(props);
 
     this.state = {
-      isRetrievingElection: true
+      isRetrievingElection: true,
+      web3Undefined: false
     };
   }
 
   componentDidMount() {
-    this.getCurrentBackend();
+    if (typeof web3 !== 'undefined') this.getCurrentBackend();
+    else this.setState({ web3Undefined: true });
   }
 
-  async getCurrentBackend() {
-    if (electionAddress === undefined)
-      try {
-        this.setState({ isRetrievingElection: true });
+  showInfo() {
+    if (this.state.web3Undefined) return <MetaMaskFox toDownload={true} />;
+    return <SpinnerWithInfo info={'Retrieving Election...'} />;
+  }
 
-        this.currentElectionAddress = await getElectionCurrentInstance();
+  async getCurrentElectionTimeRange() {
+    try {
+      const electionTimeRange = await getElectionTimeRange();
 
-        const electionTimeRange = await getElectionTimeRange();
-
+      if (
+        electionTimeRange[0].toNumber() !==
+          this.props.electionTimeRange.electionStartTime ||
+        electionTimeRange[1].toNumber() !==
+          this.props.electionTimeRange.electionEndTime
+      )
         this.props.electionTimeRangeSet(
           electionTimeRange[0].toNumber(),
           electionTimeRange[1].toNumber()
         );
-      } catch (error) {
-        console.log(error);
-      } finally {
-        this.setState({ isRetrievingElection: false });
-      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getCurrentBackend() {
+    try {
+      this.setState({ isRetrievingElection: true });
+
+      this.currentElectionAddress = await getElectionCurrentInstance();
+
+      const electionTimeRange = await getElectionTimeRange();
+
+      this.props.electionTimeRangeSet(
+        electionTimeRange[0].toNumber(),
+        electionTimeRange[1].toNumber()
+      );
+
+      setInterval(() => this.getCurrentElectionTimeRange(), 2000);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      this.setState({ isRetrievingElection: false });
+    }
   }
 
   render() {
     return (
       <main>
-        {!this.state.isRetrievingElection ? (
+        {!this.state.isRetrievingElection && !this.state.web3Undefined ? (
           <Container>
             {this.props.authData && (
               <p>
@@ -96,9 +122,7 @@ class App extends Component {
             {this.props.children}
           </Container>
         ) : (
-          <FullHeightContainer>
-            <SpinnerWithInfo info={'Retrieving Election...'} />
-          </FullHeightContainer>
+          <FullHeightContainer>{this.showInfo()}</FullHeightContainer>
         )}
       </main>
     );

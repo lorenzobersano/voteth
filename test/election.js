@@ -6,14 +6,18 @@ const candidateName = 'Test Candidate',
   candidatePoliticalProgram = 'Test program',
   candidateIPFSHash = 'Test IPFS hash';
 
+let electionInstance;
+
+Election.deployed().then(instance => {
+  electionInstance = instance;
+});
+
 contract('Election', accounts => {
   it('should set the Election time range', async () => {
     const startTime = 12345678910,
       endTime = 2345678910;
 
     try {
-      const electionInstance = await Election.deployed();
-
       await electionInstance.setElectionTimeRange(startTime, endTime, {
         from: accounts[0]
       });
@@ -38,8 +42,6 @@ contract('Election', accounts => {
 
   it('should add a Candidate', async () => {
     try {
-      const electionInstance = await Election.deployed();
-
       await electionInstance.addCandidate(
         candidateIPFSHash,
         candidateName,
@@ -84,8 +86,6 @@ contract('Election', accounts => {
       requesterDocumentIPFSHash = 'Test IPFS hash';
 
     try {
-      const electionInstance = await Election.deployed();
-
       await electionInstance.requestVerification(
         requesterName,
         requesterDocumentIPFSHash,
@@ -120,8 +120,6 @@ contract('Election', accounts => {
 
   it('should verify a voter', async () => {
     try {
-      const electionInstance = await Election.deployed();
-
       const verificationRequest = await electionInstance.getVerificationRequestAt(
         0
       );
@@ -151,8 +149,6 @@ contract('Election', accounts => {
       posOfTheVerificationRequestToDelete = 0;
 
     try {
-      const electionInstance = await Election.deployed();
-
       await electionInstance.requestVerification(
         requesterName,
         requesterDocumentIPFSHash,
@@ -181,8 +177,6 @@ contract('Election', accounts => {
     const endTime = parseInt((new Date().getTime() / 1000).toFixed(0)) + 10;
 
     try {
-      const electionInstance = await Election.deployed();
-
       await electionInstance.setElectionTimeRange(startTime, endTime, {
         from: accounts[0]
       });
@@ -210,8 +204,6 @@ contract('Election', accounts => {
     const endTime = parseInt((new Date().getTime() / 1000).toFixed(0)) - 10;
 
     try {
-      const electionInstance = await Election.deployed();
-
       await electionInstance.setElectionTimeRange(startTime, endTime, {
         from: accounts[0]
       });

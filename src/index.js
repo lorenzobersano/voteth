@@ -19,6 +19,7 @@ import HandleEmergency from './layouts/handleEmergency/HandleEmergency.js';
 // Redux Store
 import store from './store';
 import checkIfMetaMaskIsEnabled from './util/checkIfMetaMaskIsEnabled.js';
+import checkIfEmergencyStop from './util/checkIfEmergencyStop';
 
 const history = syncHistoryWithStore(browserHistory, store);
 
@@ -26,7 +27,7 @@ ReactDOM.render(
   <Provider store={store}>
     <Router history={history}>
       <Route path="/" component={AppContainer}>
-        <IndexRoute component={Home} />
+        <IndexRoute component={checkIfEmergencyStop(Home)} />
         <Route path="results" component={Results} />
         <Route
           path="handleEmergency"

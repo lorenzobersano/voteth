@@ -113,7 +113,7 @@ const SpinnerContainer = styled.div`
 
 const Spinner = () => (
   <div style={{ width: '100px', height: '100px' }}>
-    <SpinnerStyle class="lds-spinner" style={{ width: '100%', height: '100%' }}>
+    <SpinnerStyle style={{ width: '100%', height: '100%' }}>
       <div />
       <div />
       <div />

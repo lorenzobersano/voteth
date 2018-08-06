@@ -10,9 +10,7 @@ import {
   getCandidateAt,
   getVerificationState,
   checkIfVoterHasCommittedVote,
-  checkIfVoterHasRevealedVote,
-  getElectionTimeRange,
-  getElectionCurrentInstance
+  checkIfVoterHasRevealedVote
 } from './../../util/electionContractInteractions';
 
 // UI Components
