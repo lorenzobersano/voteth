@@ -12,6 +12,11 @@ Election.deployed().then(instance => {
   electionInstance = instance;
 });
 
+/* 
+ * These tests are made in this way and order so that every single feature of the contract
+ * is tested following the normal use flow of the DApp.
+ */
+
 contract('Election', accounts => {
   it('should set the Election time range', async () => {
     const startTime = 12345678910,
@@ -222,6 +227,20 @@ contract('Election', accounts => {
         1,
         'The vote has not been revealed correctly.'
       );
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  it('should toggle circuit breaker', async () => {
+    try {
+      await electionInstance.toggleCircuitBreaker({
+        from: accounts[0]
+      });
+
+      const stopped = await electionInstance.stopped();
+
+      assert.equal(stopped, true, 'The contract is not stopped.');
     } catch (error) {
       console.log(error);
     }

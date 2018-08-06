@@ -174,6 +174,7 @@ contract Election {
         require(committedVotes[msg.sender] == _committedVote);
         require(keccak256(abi.encodePacked(_vote)) == _committedVote);
 
+        // Using the stringutils library, gets only the nameOfCandidate part of the vote
         string memory _votedCandidateName = _vote.toSlice().split("-".toSlice()).toString();
         revealedVotes[_votedCandidateName]++;
         voterHasRevealedVote[msg.sender] = true;
@@ -240,5 +241,10 @@ contract Election {
         stopped = !stopped;
 
         emit CircuitBreakerToggled(stopped);
-    } 
+    }
+
+    // This is just in case someone accidentally sends Ether to this contract
+    function () public payable {
+        revert();
+    }
 }

@@ -1,2 +1,2 @@
-Election: 0x7ece7e31b0d7f20f21ced74402303fbf8b996661 // dopo metto questa 0x705ba8d4973684eb846b53af46fec56455f8a1d4
+Election: 0x6d99724a9e7b494e5735c4371ab7f9f3c4ad38b9
 ElectionRegistry: 0xbafa852a0450632f60e977c5941ea7949aa857c1
