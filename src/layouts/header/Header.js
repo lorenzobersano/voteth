@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { Link } from 'react-router';
 import {
   HiddenOnlyAuth,
@@ -43,8 +43,10 @@ const NavLink = styled(Link)`
 `;
 
 const HeaderTitle = styled.h1`
-  font-size: 3rem;
   color: #02111b;
+  font-family: 'Constantia', 'serif';
+  font-weight: bold;
+  font-size: 3rem;
 `;
 
 const Links = styled.div`
