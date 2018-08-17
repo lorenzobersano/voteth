@@ -1,4 +1,4 @@
-![alt text](./src/img/voteth.svg 'votΞ')
+![votΞ](./src/img/voteth.png 'votΞ')
 
 A pseudoanonymous voting ĐApp based on Ethereum.
 
