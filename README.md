@@ -1,4 +1,4 @@
-<span style="color: #02111b; font-family: 'Constantia', 'serif'; font-weight: bold; font-size: 5rem;">votΞ</span>
+<div style="color: #02111b; font-family: 'Constantia', 'serif'; font-weight: bold; font-size: 5rem;">votΞ</div>
 
 A pseudoanonymous voting ĐApp based on Ethereum.
 
