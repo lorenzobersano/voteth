@@ -98,6 +98,7 @@ class RequestVerification extends Component {
 
         await requestVerification(
           this.props.authData.name,
+          this.props.authData.avatar.uri,
           picHash,
           this.props.authData.address
         );

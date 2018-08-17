@@ -67,6 +67,7 @@ contract Election {
     struct VerificationRequest {
         address requester;
         string  requesterName;
+        string  requesterPicIPFSHash;
         string  votingDocumentIPFSHash;
     }
     
@@ -186,8 +187,8 @@ contract Election {
      *  @param  _requesterName          The name fo the requester
      *  @param  _votingDocumentIPFSHash The hash of the document needed to verify the user stored on IPFS
      */
-    function requestVerification(string _requesterName, string _votingDocumentIPFSHash) public electionIsNotOpenedYet stopInEmergency {
-        verificationRequests.push(VerificationRequest(msg.sender, _requesterName, _votingDocumentIPFSHash));
+    function requestVerification(string _requesterName, string _requesterPicIPFSHash, string _votingDocumentIPFSHash) public electionIsNotOpenedYet stopInEmergency {
+        verificationRequests.push(VerificationRequest(msg.sender, _requesterName, _requesterPicIPFSHash, _votingDocumentIPFSHash));
 
         emit VerificationRequested(msg.sender);
     }
@@ -198,10 +199,11 @@ contract Election {
      *  @return _requesterName          The name of the user who created the request
      *  @return _votingDocumentIPFSHash The hash of the document needed to verify the user stored on IPFS
      */
-    function getVerificationRequestAt(uint _position) public view electionIsNotOpenedYet returns (address _requester, string _requesterName, string _votingDocumentIPFSHash) {
+    function getVerificationRequestAt(uint _position) public view electionIsNotOpenedYet returns (address _requester, string _requesterName, string _requesterPicIPFSHash, string _votingDocumentIPFSHash) {
         return (
             verificationRequests[_position].requester,
             verificationRequests[_position].requesterName,
+            verificationRequests[_position].requesterPicIPFSHash,
             verificationRequests[_position].votingDocumentIPFSHash
         );
     }
@@ -227,15 +229,15 @@ contract Election {
         emit VerificationRequestRemoved(_position);
     }
     
-    /** @dev                    Verifies a voter with a specified address
-     *  @param  _voter          The address of the voter to be verified
+    /** @dev            Verifies a voter with a specified address
+     *  @param  _voter  The address of the voter to be verified
      */
     function verifyVoter(address _voter, uint _pos) public onlyOwner electionIsNotOpenedYet {
         verifiedVoter[_voter] = true;
         removeVerificationRequestAt(_pos);
     }
 
-    /** @dev    Lets the admin lock or unlock certain functionalities in certain situations (circuit breaker pattern)
+    /** @dev Lets the admin lock or unlock certain functionalities in certain situations (circuit breaker pattern)
      */
     function toggleCircuitBreaker() onlyOwner public {
         stopped = !stopped;

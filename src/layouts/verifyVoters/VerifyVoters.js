@@ -40,7 +40,7 @@ class VerifyVoters extends Component {
   async getAllVerificationRequests() {
     let numOfVerificationRequests;
     let i;
-    let verificationRequest, pic;
+    let verificationRequest, docPic;
     let verificationRequests = [];
 
     try {
@@ -60,10 +60,11 @@ class VerifyVoters extends Component {
             i,
             this.props.authData.address
           );
-          pic = await resolveIPFSHash(
-            verificationRequest[2].substring(
+
+          docPic = await resolveIPFSHash(
+            verificationRequest[3].substring(
               1,
-              verificationRequest[2].length - 1
+              verificationRequest[3].length - 1
             )
           );
 
@@ -74,7 +75,8 @@ class VerifyVoters extends Component {
                 1,
                 verificationRequest[1].length - 1
               )}
-              documentPic={pic}
+              voterPic={verificationRequest[2]}
+              documentPic={docPic}
               key={i}
               index={i}
               ownerAddress={this.props.authData.address}

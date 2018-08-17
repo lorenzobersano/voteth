@@ -24,26 +24,18 @@ export default WrappedComponent => {
       try {
         const emergencyStop = await checkIfStopped();
 
-        if (!emergencyStop && this.state.emergencyStop) {
-          try {
-            await getElectionCurrentInstance();
+        if (this.state.emergencyStop && !emergencyStop) {
+          await getElectionCurrentInstance();
 
-            !this.isCancelled && this.setState({ emergencyStop: false });
+          !this.isCancelled && this.setState({ emergencyStop: false });
 
-            swal(
-              'Election has reopened',
-              'Thank you for your patience!',
-              'info'
-            );
-          } catch (error) {
-            console.log(error);
-          }
+          swal('Election has reopened', 'Thank you for your patience!', 'info');
+        } else {
+          !this.isCancelled &&
+            ((!this.state.emergencyStop && emergencyStop) ||
+              (this.state.emergencyStop && !emergencyStop)) &&
+            this.setState({ emergencyStop });
         }
-
-        !this.isCancelled &&
-          ((!this.state.emergencyStop && emergencyStop) ||
-            (this.state.emergencyStop && !emergencyStop)) &&
-          this.setState({ emergencyStop });
       } catch (error) {
         console.log(error);
       }

@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import Switch from '@material-ui/core/Switch';
 import swal from 'sweetalert2';
+import { isAddress } from 'web3-utils';
 
 import { SpinnerWithInfo } from './../Spinner';
 import Label from './../label/Label';
@@ -79,22 +80,33 @@ class HandleEmergency extends Component {
     const newAddress = document.querySelector('input[name="electionAddress"]')
       .value;
 
-    !this.isCancelled && this.setState({ isChangingBackendContract: true });
-
-    try {
-      const result = await changeBackend(
-        newAddress,
-        this.props.authData.address
+    if (!isAddress(newAddress))
+      swal(
+        'Invalid address',
+        'Please insert a valid contract address',
+        'error'
       );
+    else {
+      !this.isCancelled && this.setState({ isChangingBackendContract: true });
 
-      if (result) {
-        this.setToggleState();
-        swal('Ok!', `Changed contract location to ${newAddress}`, 'success');
+      try {
+        const result = await changeBackend(
+          newAddress,
+          this.props.authData.address
+        );
+
+        if (result) {
+          this.setToggleState();
+          swal('Ok!', `Changed contract location to ${newAddress}`, 'success');
+        }
+      } catch (error) {
+        console.log(error);
+
+        swal('Oooops!', `${error}`, 'error');
+      } finally {
+        !this.isCancelled &&
+          this.setState({ isChangingBackendContract: false });
       }
-    } catch (error) {
-      swal('Oooops!', error, 'error');
-    } finally {
-      !this.isCancelled && this.setState({ isChangingBackendContract: false });
     }
   }
 

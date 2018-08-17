@@ -103,7 +103,7 @@ export const checkIfStopped = () => {
 
 export const changeBackend = (newBackendAddress, sender) => {
   return new Promise((resolve, reject) => {
-    const instance = ElectionRegistry.at(deployedAddresses.ElectionRegistry);
+    const instance = ElectionRegistry.at(deployedRegistry.address);
     instance.changeBackend(
       newBackendAddress,
       { from: sender },
@@ -229,6 +229,7 @@ export const getNumberOfVerificationRequests = () => {
 
 export const requestVerification = (
   requesterName,
+  requesterPicIPFSHash,
   votingDocumentIPFSHash,
   sender
 ) => {
@@ -237,6 +238,7 @@ export const requestVerification = (
       const instance = uport.contract(electionArtifact.abi).at(electionAddress);
       await instance.requestVerification(
         requesterName,
+        requesterPicIPFSHash,
         votingDocumentIPFSHash,
         {
           from: sender

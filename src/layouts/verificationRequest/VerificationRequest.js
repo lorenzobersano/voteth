@@ -16,6 +16,11 @@ const Card = styled.div`
   padding: 1rem;
 `;
 
+const Voter = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 const Avatar = styled.img`
   width: 80px;
   height: 80px;
@@ -24,7 +29,7 @@ const Avatar = styled.img`
 `;
 
 const Name = styled.h2`
-  margin: 0;
+  margin: 0 0 0 1rem;
   font-size: 24px;
 `;
 
@@ -105,7 +110,15 @@ class VerificationRequest extends Component {
   render() {
     return (
       <Card>
-        <Name>{this.props.name}</Name>
+        <Voter>
+          <Avatar
+            src={this.props.voterPic.substring(
+              1,
+              this.props.voterPic.length - 1
+            )}
+          />
+          <Name>{this.props.name}</Name>
+        </Voter>
         <p>Identification Document</p>
         <Document src={this.props.documentPic} />
         <Actions>

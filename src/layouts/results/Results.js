@@ -84,6 +84,11 @@ class Results extends Component {
           );
         }
 
+        candidates.sort(
+          (candidate1, candidate2) =>
+            candidate2.props.votes - candidate1.props.votes
+        );
+
         !this.isCancelled && this.setState({ candidates });
       }
     } catch (e) {
