@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import { connect } from 'react-redux';
 
 import {
   getNumberOfVerificationRequests,
@@ -6,23 +7,35 @@ import {
 } from '../../util/electionContractInteractions';
 import { resolveIPFSHash } from './../../util/ipfsUtils';
 
-import Container from './../container/Container';
 import VerificationRequest from './../verificationRequest/VerificationRequest';
 import { SpinnerWithInfo } from '../Spinner';
+
+const mapStateToProps = state => {
+  return {
+    electionStartTime: state.smartContracts.electionTimeRange.electionStartTime
+  };
+};
 
 class VerifyVoters extends Component {
   constructor() {
     super();
 
     this.state = {
-      verificationRequests: null
+      verificationRequests: null,
+      electionHasAlreadyStarted: false
     };
   }
 
   isCancelled = false;
 
   componentDidMount() {
-    this.getAllVerificationRequests();
+    if (
+      parseInt((new Date().getTime() / 1000).toFixed(0)) >=
+        this.props.electionStartTime &&
+      !this.isCancelled
+    )
+      this.setState({ electionHasAlreadyStarted: true });
+    else this.getAllVerificationRequests();
   }
 
   componentWillUnmount() {
@@ -96,7 +109,9 @@ class VerifyVoters extends Component {
     return (
       <Fragment>
         <h2>Verification requests</h2>
-        {this.state.verificationRequests ? (
+        {this.state.electionHasAlreadyStarted ? (
+          <p>Election has already started!</p>
+        ) : this.state.verificationRequests ? (
           this.state.verificationRequests
         ) : (
           <SpinnerWithInfo info={'Loading verification requests...'} />
@@ -106,4 +121,7 @@ class VerifyVoters extends Component {
   }
 }
 
-export default VerifyVoters;
+export default connect(
+  mapStateToProps,
+  null
+)(VerifyVoters);

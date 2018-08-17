@@ -51,6 +51,7 @@ class RequestVerification extends Component {
       !this.isCancelled &&
         this.setState({ userHasAlreadyAskedForVerification });
 
+      // Checks if election has already started
       parseInt((new Date().getTime() / 1000).toFixed(0)) >=
         this.props.electionStartTime &&
         !this.isCancelled &&

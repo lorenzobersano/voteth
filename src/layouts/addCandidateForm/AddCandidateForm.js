@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
+import { connect } from 'react-redux';
 
 import { uploadToIPFS } from './../../util/ipfsUtils';
 import { addCandidate } from './../../util/electionContractInteractions';
@@ -34,6 +35,12 @@ const PhotoUploadButton = styled.input`
   width: 100%;
 `;
 
+const mapStateToProps = state => {
+  return {
+    electionStartTime: state.smartContracts.electionTimeRange.electionStartTime
+  };
+};
+
 let file;
 let reader;
 let buffer;
@@ -46,8 +53,16 @@ class AddCandidateForm extends Component {
 
     this.state = {
       isAddingCandidate: false,
-      loaderText: 'Loading...'
+      loaderText: 'Loading...',
+      electionHasAlreadyStarted: false
     };
+  }
+
+  componentDidMount() {
+    parseInt((new Date().getTime() / 1000).toFixed(0)) >=
+      this.props.electionStartTime &&
+      !this.isCancelled &&
+      this.setState({ electionHasAlreadyStarted: true });
   }
 
   async handleSubmit(e) {
@@ -99,29 +114,36 @@ class AddCandidateForm extends Component {
     return (
       <Fragment>
         <h2>Add candidate</h2>
-        <Form onSubmit={this.handleSubmit}>
-          <Label htmlFor="name">Name</Label>
-          <TextBox type="text" name="name" required />
-          <Label htmlFor="party">Party</Label>
-          <TextBox type="text" name="party" required />
-          <Label htmlFor="politicalProgram">Political program</Label>
-          <TextArea name="politicalProgram" required />
-          <Label htmlFor="pic">Candidate pic</Label>
-          <PhotoUploadButton
-            type="file"
-            name="pic"
-            onChange={this.handlePicUpload}
-            required
-          />
-          <RightAlignedButton type="submit">Add candidate</RightAlignedButton>
+        {!this.state.electionHasAlreadyStarted ? (
+          <Form onSubmit={this.handleSubmit}>
+            <Label htmlFor="name">Name</Label>
+            <TextBox type="text" name="name" required />
+            <Label htmlFor="party">Party</Label>
+            <TextBox type="text" name="party" required />
+            <Label htmlFor="politicalProgram">Political program</Label>
+            <TextArea name="politicalProgram" required />
+            <Label htmlFor="pic">Candidate pic</Label>
+            <PhotoUploadButton
+              type="file"
+              name="pic"
+              onChange={this.handlePicUpload}
+              required
+            />
+            <RightAlignedButton type="submit">Add candidate</RightAlignedButton>
 
-          {this.state.isAddingCandidate && (
-            <SpinnerWithInfo info={this.state.loaderText} />
-          )}
-        </Form>
+            {this.state.isAddingCandidate && (
+              <SpinnerWithInfo info={this.state.loaderText} />
+            )}
+          </Form>
+        ) : (
+          <p>Election has already started!</p>
+        )}
       </Fragment>
     );
   }
 }
 
-export default AddCandidateForm;
+export default connect(
+  mapStateToProps,
+  null
+)(AddCandidateForm);
