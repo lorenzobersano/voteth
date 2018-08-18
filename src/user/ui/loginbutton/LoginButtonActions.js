@@ -58,7 +58,7 @@ export function loginUser() {
       }
 
       return credentials.isAdmin
-        ? browserHistory.push('/')
+        ? browserHistory.push('/electionHome')
         : browserHistory.push('/profile');
     }
   };

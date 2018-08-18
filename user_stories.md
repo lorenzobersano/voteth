@@ -2,9 +2,16 @@
 
 ## Election administrator
 
+### Creates election
+
+Giving a simple name and description to the election, any MetaMask user can create an election and manage it.
+
 ### Sets start and end time of election and adds candidates
 
 The creator and administrator of the election sets the start and end time of the election, then he can add candidates, which have a profile picture, a name, a party and a political program.
+
+Normally the election admin shouldn't have the possibility to change the election start and end time once set, but because this is just a demonstration I decided
+to make it so in order to test faster the different phases of the election.
 
 ### Verifies voters
 

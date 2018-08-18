@@ -40,30 +40,29 @@ const initializeElectionAddressAndInstance = async backendAddress => {
   return Promise.resolve();
 };
 
-export const getElectionCurrentInstance = () => {
+export const getElectionCurrentInstance = registryAddress => {
   return new Promise((resolve, reject) => {
-    if (deployedRegistry.address !== '') {
-      const instance = ElectionRegistry.at(deployedRegistry.address);
-      instance.backendContract(async (err, backendContract) => {
-        if (err) reject(err);
+    const instance = ElectionRegistry.at(registryAddress);
 
-        if (electionAddress !== backendContract) {
-          electionAddress = backendContract;
+    instance.backendContract(async (err, backendContract) => {
+      if (err) reject(err);
 
-          try {
-            electionInstance = await Election.at(electionAddress);
-          } catch (error) {
-            reject(error);
-          }
+      if (electionAddress !== backendContract) {
+        electionAddress = backendContract;
 
-          ElectionEventWatcher = web3.eth
-            .contract(electionArtifact.abi)
-            .at(electionAddress);
+        try {
+          electionInstance = await Election.at(electionAddress);
+        } catch (error) {
+          reject(error);
         }
 
-        resolve(backendContract);
-      });
-    }
+        ElectionEventWatcher = web3.eth
+          .contract(electionArtifact.abi)
+          .at(electionAddress);
+      }
+
+      resolve(backendContract);
+    });
   });
 };
 

@@ -1,2 +1,1 @@
-Election: 0xfcffc574e86a04e5f920b479abfb3215d607c88c
-ElectionRegistry: 0xbafa852a0450632f60e977c5941ea7949aa857c1
+ElectionsList: 0xD48695f4bD83CE6869166CDbe98Fb96C7efC47Cc

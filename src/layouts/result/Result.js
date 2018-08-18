@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 // UI Components
@@ -40,23 +40,15 @@ const Party = styled.h4`
   color: gray;
 `;
 
-export default class Result extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <Card>
-        <Candidate>
-          <Avatar src={this.props.candidatePic} alt="Candidate photo" />
-          <Infos>
-            <Name>{this.props.candidateName}</Name>
-            <Party>{this.props.candidateParty}</Party>
-          </Infos>
-        </Candidate>
-        <Votes>{this.props.votes}</Votes>
-      </Card>
-    );
-  }
-}
+export default props => (
+  <Card>
+    <Candidate>
+      <Avatar src={props.candidatePic} alt="Candidate photo" />
+      <Infos>
+        <Name>{props.candidateName}</Name>
+        <Party>{props.candidateParty}</Party>
+      </Infos>
+    </Candidate>
+    <Votes>{props.votes}</Votes>
+  </Card>
+);

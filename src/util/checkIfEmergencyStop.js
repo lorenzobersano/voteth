@@ -3,7 +3,8 @@ import swal from 'sweetalert2';
 
 import {
   checkIfStopped,
-  getElectionCurrentInstance
+  getElectionCurrentInstance,
+  electionAddress
 } from './electionContractInteractions';
 
 import EmergencyStopWarning from '../layouts/EmergencyStopWarning';
@@ -14,7 +15,8 @@ export default WrappedComponent => {
       super(props);
 
       this.state = {
-        emergencyStop: false
+        emergencyStop: false,
+        electionCurrentInstance: null
       };
     }
 
@@ -25,11 +27,14 @@ export default WrappedComponent => {
         const emergencyStop = await checkIfStopped();
 
         if (this.state.emergencyStop && !emergencyStop) {
-          await getElectionCurrentInstance();
-
           !this.isCancelled && this.setState({ emergencyStop: false });
 
-          swal('Election has reopened', 'Thank you for your patience!', 'info');
+          this.state.electionCurrentInstance === electionAddress &&
+            swal(
+              'Election has reopened',
+              'Thank you for your patience!',
+              'info'
+            );
         } else {
           !this.isCancelled &&
             ((!this.state.emergencyStop && emergencyStop) ||

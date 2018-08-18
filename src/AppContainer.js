@@ -5,7 +5,8 @@ import App from './App';
 const mapStateToProps = state => {
   return {
     authData: state.user.data,
-    electionTimeRange: state.smartContracts.electionTimeRange
+    electionTimeRange: state.smartContracts.electionTimeRange,
+    currentElectionContract: state.smartContracts.currentElectionContract
   };
 };
 

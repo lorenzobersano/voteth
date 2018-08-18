@@ -7,7 +7,7 @@ import { UserIsAuthenticated } from './util/wrappers.js';
 
 // Layouts
 import AppContainer from './AppContainer';
-import Home from './layouts/home/Home';
+import ElectionHome from './layouts/electionHome/ElectionHome';
 import Results from './layouts/results/Results';
 import Profile from './user/layouts/profile/Profile';
 import AddCandidateForm from './layouts/addCandidateForm/AddCandidateForm';
@@ -15,6 +15,8 @@ import SetElectionTimeRangeContainer from './layouts/setElectionTimeRange/SetEle
 import VerifyVoters from './layouts/verifyVoters/VerifyVoters.js';
 import RequestVerification from './layouts/requestVerification/RequestVerification.js';
 import HandleEmergency from './layouts/handleEmergency/HandleEmergency.js';
+import CreateElectionForm from './layouts/createElectionForm/CreateElectionForm.js';
+import Home from './layouts/home/Home.js';
 
 // Redux Store
 import store from './store';
@@ -27,7 +29,11 @@ ReactDOM.render(
   <Provider store={store}>
     <Router history={history}>
       <Route path="/" component={AppContainer}>
-        <IndexRoute component={checkIfEmergencyStop(Home)} />
+        <IndexRoute component={Home} />
+        <Route
+          path="electionHome"
+          component={checkIfEmergencyStop(ElectionHome)}
+        />
         <Route path="results" component={Results} />
         <Route
           path="handleEmergency"
@@ -57,6 +63,7 @@ ReactDOM.render(
           path="requestVerification"
           component={UserIsAuthenticated(RequestVerification)}
         />
+        <Route path="createElection" component={CreateElectionForm} />
         <Route path="profile" component={UserIsAuthenticated(Profile)} />
       </Route>
     </Router>

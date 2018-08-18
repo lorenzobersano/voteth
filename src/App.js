@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { browserHistory } from 'react-router';
 import { isMNID, decode } from 'mnid';
 import styled from 'styled-components';
 import moment from 'moment';
@@ -17,6 +18,7 @@ import {
 } from './util/electionContractInteractions';
 import { SpinnerWithInfo } from './layouts/Spinner';
 import MetaMaskFox from './layouts/MetaMaskFox';
+import Home from './layouts/home/Home';
 
 const FullHeightContainer = styled(Container)`
   height: 100vh;
@@ -35,9 +37,13 @@ class App extends Component {
     };
   }
 
-  componentDidMount() {
-    if (typeof web3 !== 'undefined') this.getCurrentBackend();
-    else this.setState({ web3Undefined: true });
+  componentDidUpdate(prevProps) {
+    if (
+      this.props.currentElectionContract !==
+        prevProps.currentElectionContract &&
+      this.props.currentElectionContract !== null
+    )
+      this.getCurrentBackend();
   }
 
   showInfo() {
@@ -65,64 +71,79 @@ class App extends Component {
   }
 
   async getCurrentBackend() {
-    try {
-      this.setState({ isRetrievingElection: true });
+    if (typeof web3 === 'undefined') this.setState({ web3Undefined: true });
+    else
+      try {
+        this.setState({ isRetrievingElection: true });
 
-      this.currentElectionAddress = await getElectionCurrentInstance();
+        this.currentElectionAddress = await getElectionCurrentInstance(
+          this.props.currentElectionContract
+        );
 
-      const electionTimeRange = await getElectionTimeRange();
+        browserHistory.push('/electionHome');
 
-      this.props.electionTimeRangeSet(
-        electionTimeRange[0].toNumber(),
-        electionTimeRange[1].toNumber()
-      );
+        const electionTimeRange = await getElectionTimeRange();
 
-      setInterval(() => this.getCurrentElectionTimeRange(), 2000);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      this.setState({ isRetrievingElection: false });
-    }
+        this.props.electionTimeRangeSet(
+          electionTimeRange[0].toNumber(),
+          electionTimeRange[1].toNumber()
+        );
+
+        setInterval(() => this.getCurrentElectionTimeRange(), 2000);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        this.setState({ isRetrievingElection: false });
+      }
   }
 
   render() {
     return (
       <main>
-        {!this.state.isRetrievingElection && !this.state.web3Undefined ? (
-          <Container>
-            {this.props.authData && (
-              <p>
-                <strong>Current account:</strong>{' '}
-                {!isMNID(this.props.authData.address)
-                  ? this.props.authData.address
-                  : decode(this.props.authData.address).address}
-              </p>
-            )}
-            {this.props.electionTimeRange &&
-              this.props.electionTimeRange.electionStartTime !== 0 &&
-              this.props.electionTimeRange.electionEndTime !== 0 && (
+        {this.props.currentElectionContract ? (
+          !this.state.isRetrievingElection && !this.state.web3Undefined ? (
+            <Container>
+              {this.props.authData && (
                 <p>
-                  Election will start{' '}
-                  <strong>
-                    {moment
-                      .unix(this.props.electionTimeRange.electionStartTime)
-                      .local()
-                      .format('D/M/YYYY hh:mm A')}{' '}
-                  </strong>{' '}
-                  and will end{' '}
-                  <strong>
-                    {moment
-                      .unix(this.props.electionTimeRange.electionEndTime)
-                      .local()
-                      .format('D/M/YYYY hh:mm A')}{' '}
-                  </strong>
+                  <strong>Current account:</strong>{' '}
+                  {!isMNID(this.props.authData.address)
+                    ? this.props.authData.address
+                    : decode(this.props.authData.address).address}
                 </p>
               )}
-            <Header />
-            {this.props.children}
-          </Container>
+              {this.props.electionTimeRange &&
+                this.props.electionTimeRange.electionStartTime !== 0 &&
+                this.props.electionTimeRange.electionEndTime !== 0 && (
+                  <p>
+                    Election will start{' '}
+                    <strong>
+                      {moment
+                        .unix(this.props.electionTimeRange.electionStartTime)
+                        .local()
+                        .format('D/M/YYYY hh:mm A')}{' '}
+                    </strong>{' '}
+                    and will end{' '}
+                    <strong>
+                      {moment
+                        .unix(this.props.electionTimeRange.electionEndTime)
+                        .local()
+                        .format('D/M/YYYY hh:mm A')}{' '}
+                    </strong>
+                  </p>
+                )}
+              <Header mainPage={false} />
+              {this.props.children}
+            </Container>
+          ) : (
+            <FullHeightContainer>{this.showInfo()}</FullHeightContainer>
+          )
         ) : (
-          <FullHeightContainer>{this.showInfo()}</FullHeightContainer>
+          <Container>
+            <Header mainPage={true} />
+            {(this.props.children.type.name === 'Home' ||
+              this.props.children.type.name === 'CreateElectionForm') &&
+              this.props.children}
+          </Container>
         )}
       </main>
     );

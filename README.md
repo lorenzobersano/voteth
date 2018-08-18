@@ -13,21 +13,6 @@ In order to deploy a new Election you have to:
 1. **Deploy Election contract**
    <br/>
    Use `truffle migrate --network rinkeby` which deploys to Rinkeby: make sure to have some testnet Ether in the deploying account (you can get it from [here](https://faucet.rinkeby.io/)) and paste its mnemonic in your .env file, create an account on Infura and get your API key (keep it secret, copy it in your .env file).
-   Copy the Election address, you will need it in the next step.
-
-2. **Deploy Election Registry contract**
-   <br/>
-   I made a simple Node script to do this. To execute it open your terminal in the base folder of votΞ and type
-
-   ```javascript
-   node .\src\util\electionRegistryUtils\deployElectionRegistry.js deployRegistry
-   ```
-
-   When it's finished run
-
-   ```javascript
-   node .\src\util\electionRegistryUtils\deployElectionRegistry.js changeBackend --newBackend yourElectionContractAddress
-   ```
 
 ## How to test contracts
 

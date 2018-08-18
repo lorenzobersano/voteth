@@ -12,6 +12,7 @@ import { checkIfStopped } from './../../util/electionContractInteractions';
 // UI Components
 import LoginButtonContainer from '../../user/ui/loginbutton/LoginButtonContainer';
 import LogoutButtonContainer from '../../user/ui/logoutbutton/LogoutButtonContainer';
+import HeaderTitleContainer from '../headerTitle/HeaderTitleContainer.js';
 
 const Navbar = styled.nav`
   display: flex;
@@ -23,6 +24,16 @@ const Navbar = styled.nav`
   @media (max-width: 45rem) {
     flex-direction: column;
     padding-bottom: 1rem;
+  }
+`;
+
+const Links = styled.div`
+  display: flex;
+
+  @media (max-width: 720px) {
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
   }
 `;
 
@@ -39,23 +50,6 @@ const NavLink = styled(Link)`
   @media (max-width: 768px) {
     padding-bottom: 0.5rem;
     justify-content: center;
-  }
-`;
-
-const HeaderTitle = styled.h1`
-  color: #02111b;
-  font-family: 'Constantia', 'serif';
-  font-weight: bold;
-  font-size: 3rem;
-`;
-
-const Links = styled.div`
-  display: flex;
-
-  @media (max-width: 720px) {
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
   }
 `;
 
@@ -84,11 +78,13 @@ export default class Header extends Component {
   }
 
   componentDidMount() {
-    this.checkIfContractIsInEmergencyStop();
-
-    setInterval(() => {
+    if (!this.props.mainPage) {
       this.checkIfContractIsInEmergencyStop();
-    }, 2000);
+
+      setInterval(() => {
+        this.checkIfContractIsInEmergencyStop();
+      }, 2000);
+    }
   }
 
   componentWillUnmount() {
@@ -137,17 +133,26 @@ export default class Header extends Component {
 
     return (
       <Navbar>
-        <Link to="/">
-          <HeaderTitle>votΞ</HeaderTitle>
-        </Link>
-        <Links>
-          {!this.state.emergencyStop && (
-            <NavLink to="/results">Results</NavLink>
-          )}
-          <OnlyGuestLinks />
-          <OnlyAuthAdminLinks />
-          <OnlyAuthLinks />
-        </Links>
+        <HeaderTitleContainer />
+        {!this.props.mainPage ? (
+          <Links>
+            {!this.state.emergencyStop && [
+              <NavLink to="/electionHome" key={'electionHome'}>
+                Candidates
+              </NavLink>,
+              <NavLink to="/results" key={'results'}>
+                Results
+              </NavLink>
+            ]}
+            <OnlyGuestLinks />
+            <OnlyAuthAdminLinks />
+            <OnlyAuthLinks />
+          </Links>
+        ) : (
+          <Links>
+            <NavLink to="/createElection">Create election</NavLink>
+          </Links>
+        )}
       </Navbar>
     );
   }
