@@ -64,7 +64,7 @@ class Election extends Component {
           <Description>{this.props.description}</Description>
         </ElectionSubject>
         <RightAlignedButton
-          style={{ height: '100%' }}
+          style={{ alignSelf: 'center' }}
           variant="outlined"
           onClick={this.handleSubmit}
         >

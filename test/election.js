@@ -1,15 +1,63 @@
 const Election = artifacts.require('./Election.sol');
+const ElectionsList = artifacts.require('./ElectionsList.sol');
 const soliditySha3 = require('web3-utils').soliditySha3;
 
-const candidateName = 'Test Candidate',
+const electionName = 'Test name',
+  electionDescription = 'Test description',
+  candidateName = 'Test Candidate',
   candidateParty = 'Test Party',
   candidatePoliticalProgram = 'Test program',
   candidateIPFSHash = 'Test IPFS hash';
 
-let electionInstance;
+let electionInstance, electionsListInstance;
 
-Election.deployed().then(instance => {
-  electionInstance = instance;
+Election.deployed()
+  .then(instance => {
+    electionInstance = instance;
+
+    return ElectionsList.deployed();
+  })
+  .then(listInstance => {
+    electionsListInstance = listInstance;
+  });
+
+/*
+ *  ElectionsList test inserts directly the Election address, while in the real DApp it inserts the ElectionRegistry address to achieve
+ *  upgradability. Here it's not possible as truffle still doesn't support vyper contracts.
+ */
+
+contract('ElectionList', accounts => {
+  it('should create and get an election', async () => {
+    try {
+      await electionsListInstance.createElection(
+        electionName,
+        electionDescription,
+        electionInstance.address
+      );
+
+      const election = await electionsListInstance.elections(0);
+
+      assert.equal(
+        election[0],
+        electionName,
+        'The name of the Election is incorrect.'
+      );
+
+      assert.equal(
+        election[1],
+        electionDescription,
+        'The description of the Election is incorrect.'
+      );
+
+      assert.equal(
+        election[2],
+        electionInstance.address,
+        'The address of the Election is incorrect.'
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  });
 });
 
 /* 
@@ -55,7 +103,7 @@ contract('Election', accounts => {
         { from: accounts[0] }
       );
 
-      const candidate = await electionInstance.getCandidateAt(0);
+      const candidate = await electionInstance.candidates(0);
 
       assert.equal(
         candidate[0],
@@ -88,16 +136,18 @@ contract('Election', accounts => {
   it('should create a VerificationRequest', async () => {
     const requesterAddress = accounts[0],
       requesterName = 'Test requester',
+      requesterPicIPFSHash = 'Test requester pic',
       requesterDocumentIPFSHash = 'Test IPFS hash';
 
     try {
       await electionInstance.requestVerification(
         requesterName,
+        requesterPicIPFSHash,
         requesterDocumentIPFSHash,
         { from: requesterAddress }
       );
 
-      const verificationRequest = await electionInstance.getVerificationRequestAt(
+      const verificationRequest = await electionInstance.verificationRequests(
         0
       );
 
@@ -115,8 +165,14 @@ contract('Election', accounts => {
 
       assert.equal(
         verificationRequest[2],
+        requesterPicIPFSHash,
+        'The IPFS hash of the requester pic is incorrect.'
+      );
+
+      assert.equal(
+        verificationRequest[3],
         requesterDocumentIPFSHash,
-        'The IPFS hash of the requester is incorrect.'
+        'The IPFS hash of the requester document is incorrect.'
       );
     } catch (error) {
       console.log(error);
@@ -125,7 +181,7 @@ contract('Election', accounts => {
 
   it('should verify a voter', async () => {
     try {
-      const verificationRequest = await electionInstance.getVerificationRequestAt(
+      const verificationRequest = await electionInstance.verificationRequests(
         0
       );
 
@@ -150,12 +206,14 @@ contract('Election', accounts => {
   it('should delete a given verification request', async () => {
     const requesterAddress = accounts[1],
       requesterName = 'Test requester 2',
+      requesterPicIPFSHash = 'Test requester pic 2',
       requesterDocumentIPFSHash = 'Test IPFS hash 2',
       posOfTheVerificationRequestToDelete = 0;
 
     try {
       await electionInstance.requestVerification(
         requesterName,
+        requesterPicIPFSHash,
         requesterDocumentIPFSHash,
         { from: requesterAddress }
       );

@@ -5,8 +5,6 @@ import Contract from 'truffle-contract';
 import electionArtifact from './../../build/contracts/Election.json';
 import electionRegistryArtifact from './../../electionRegistryAbi/ElectionRegistry.json';
 
-import deployedRegistry from './electionRegistryUtils/electionRegistryAddress.json';
-
 export let electionAddress;
 let electionInstance, web3Provider, ElectionRegistry, ElectionEventWatcher;
 const Election = Contract(electionArtifact);
@@ -164,7 +162,7 @@ export const addCandidate = (
 export const getCandidateAt = pos => {
   return new Promise(async (resolve, reject) => {
     try {
-      const candidate = await electionInstance.getCandidateAt(pos);
+      const candidate = await electionInstance.candidates(pos);
 
       resolve(candidate);
     } catch (e) {
@@ -200,11 +198,8 @@ export const getNumberOfCandidates = () => {
 export const getVerificationRequestAt = (pos, sender) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const verificationRequest = await electionInstance.getVerificationRequestAt(
-        pos,
-        {
-          from: sender
-        }
+      const verificationRequest = await electionInstance.verificationRequests(
+        pos
       );
 
       resolve(verificationRequest);

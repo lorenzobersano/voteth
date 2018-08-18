@@ -77,8 +77,8 @@ contract Election {
     mapping (string => uint)                revealedVotes;
     mapping (address => bytes32)    public  committedVotes;
     
-    VerificationRequest[]   verificationRequests;   
-    Candidate[]             candidates;
+    VerificationRequest[]   public verificationRequests;   
+    Candidate[]             public candidates;
 
     constructor () public {
         owner = msg.sender;
@@ -112,21 +112,6 @@ contract Election {
         candidates.push(Candidate(_imageHash, _name, _party, _politicalProgram));
 
         emit CandidateAdded(_name, _party, _politicalProgram);
-    }
-    
-    /** @dev                        Gets the Candidate from the list of candidates at a specified index
-     *  @param  _position           Position in the list of candidates
-     *  @return _name               Name of the Candidate
-     *  @return _party              Party of the Candidate
-     *  @return _politicalProgram   The program of the Candidate
-     */
-    function getCandidateAt(uint _position) public view returns(string _imageHash, string _name, string _party, string _politicalProgram) {
-        return (
-            candidates[_position].imageHash,
-            candidates[_position].name,
-            candidates[_position].party,
-            candidates[_position].politicalProgram
-        );
     }
 
     /** @dev                        Gets the length of the list of candidates
@@ -191,21 +176,6 @@ contract Election {
         verificationRequests.push(VerificationRequest(msg.sender, _requesterName, _requesterPicIPFSHash, _votingDocumentIPFSHash));
 
         emit VerificationRequested(msg.sender);
-    }
-    
-    /** @dev                            Gets the VerificationRequest from the list of verification requests at a specified index
-     *  @param  _position               Position in the list of verification requests
-     *  @return _requester              The address of the user who created the request
-     *  @return _requesterName          The name of the user who created the request
-     *  @return _votingDocumentIPFSHash The hash of the document needed to verify the user stored on IPFS
-     */
-    function getVerificationRequestAt(uint _position) public view electionIsNotOpenedYet returns (address _requester, string _requesterName, string _requesterPicIPFSHash, string _votingDocumentIPFSHash) {
-        return (
-            verificationRequests[_position].requester,
-            verificationRequests[_position].requesterName,
-            verificationRequests[_position].requesterPicIPFSHash,
-            verificationRequests[_position].votingDocumentIPFSHash
-        );
     }
 
     /** @dev                        Gets the length of the list of candidates
