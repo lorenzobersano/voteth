@@ -12,13 +12,12 @@ module.exports = {
       network_id: '*'
     },
     rinkeby: {
-      provider: new HDWalletProvider(
-        process.env.MNEMONIC,
-        `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`
-      ),
-      network_id: 4,
-      gas: 3000000,
-      gasPrice: 21
+      provider: () =>
+        new HDWalletProvider(
+          process.env.MNEMONIC,
+          `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`
+        ),
+      network_id: 4
     }
   }
 };
