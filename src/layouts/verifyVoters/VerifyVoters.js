@@ -22,19 +22,22 @@ class VerifyVoters extends Component {
 
     this.state = {
       verificationRequests: null,
-      electionHasAlreadyStarted: false
+      electionHasAlreadyStarted: false,
+      electionTimeRangeNotConfigured: false
     };
   }
 
   isCancelled = false;
 
   componentDidMount() {
-    if (
+    if (this.props.electionStartTime === 0) {
+      !this.isCancelled &&
+        this.setState({ electionTimeRangeNotConfigured: true });
+    } else if (
       parseInt((new Date().getTime() / 1000).toFixed(0)) >=
-        this.props.electionStartTime &&
-      !this.isCancelled
+      this.props.electionStartTime
     )
-      this.setState({ electionHasAlreadyStarted: true });
+      !this.isCancelled && this.setState({ electionHasAlreadyStarted: true });
     else this.getAllVerificationRequests();
   }
 
@@ -109,8 +112,13 @@ class VerifyVoters extends Component {
     return (
       <Fragment>
         <h2>Verification requests</h2>
-        {this.state.electionHasAlreadyStarted ? (
-          <p>Election has already started!</p>
+        {this.state.electionHasAlreadyStarted ||
+        this.state.electionTimeRangeNotConfigured ? (
+          <p>
+            {this.state.electionTimeRangeNotConfigured
+              ? 'Election time range still has to be configured.'
+              : 'Election has already started!'}
+          </p>
         ) : this.state.verificationRequests ? (
           this.state.verificationRequests
         ) : (

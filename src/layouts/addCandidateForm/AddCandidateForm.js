@@ -54,15 +54,20 @@ class AddCandidateForm extends Component {
     this.state = {
       isAddingCandidate: false,
       loaderText: 'Loading...',
-      electionHasAlreadyStarted: false
+      electionHasAlreadyStarted: false,
+      electionTimeRangeNotConfigured: false
     };
   }
 
   componentDidMount() {
-    parseInt((new Date().getTime() / 1000).toFixed(0)) >=
-      this.props.electionStartTime &&
+    if (this.props.electionStartTime === 0) {
       !this.isCancelled &&
-      this.setState({ electionHasAlreadyStarted: true });
+        this.setState({ electionTimeRangeNotConfigured: true });
+    } else if (
+      parseInt((new Date().getTime() / 1000).toFixed(0)) >=
+      this.props.electionStartTime
+    )
+      !this.isCancelled && this.setState({ electionHasAlreadyStarted: true });
   }
 
   async handleSubmit(e) {
@@ -114,7 +119,8 @@ class AddCandidateForm extends Component {
     return (
       <Fragment>
         <h2>Add candidate</h2>
-        {!this.state.electionHasAlreadyStarted ? (
+        {!this.state.electionHasAlreadyStarted &&
+        !this.state.electionTimeRangeNotConfigured ? (
           <Form onSubmit={this.handleSubmit}>
             <Label htmlFor="name">Name</Label>
             <TextBox type="text" name="name" required />
@@ -136,7 +142,11 @@ class AddCandidateForm extends Component {
             )}
           </Form>
         ) : (
-          <p>Election has already started!</p>
+          <p>
+            {this.state.electionTimeRangeNotConfigured
+              ? 'Election time range still has to be configured.'
+              : 'Election has already started!'}
+          </p>
         )}
       </Fragment>
     );

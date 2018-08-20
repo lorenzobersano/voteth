@@ -17,7 +17,6 @@ if (typeof web3 !== 'undefined') {
   ElectionsList.setProvider(web3.currentProvider);
   ElectionRegistry = web3.eth.contract(electionRegistryArtifact.abi);
   Election.setProvider(web3.currentProvider);
-  sender = web3.eth.accounts[0];
 } else {
   // set the provider you want from Web3.providers
   // web3Provider = new Web3.providers.HttpProvider('http://localhost:8545');
@@ -87,7 +86,7 @@ export const getElectionAt = pos => {
 export const deployElectionContract = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      console.log(sender);
+      sender = web3.eth.accounts[0];
 
       electionInstance = await Election.new({ from: sender });
       Election.link('strings', '0xdb348eac1990e5d2e844a10d56921a5e9ef17df5');
