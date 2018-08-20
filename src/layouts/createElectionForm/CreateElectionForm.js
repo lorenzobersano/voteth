@@ -2,7 +2,12 @@ import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 
-import { createElection } from '../../util/electionsListContractInteractions';
+import {
+  createElection,
+  deployElectionContract,
+  deployElectionRegistryContract,
+  setBackend
+} from '../../util/electionsListContractInteractions';
 
 import Container from './../container/Container';
 import Label from './../label/Label';
@@ -35,7 +40,8 @@ class CreateElectionForm extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
 
     this.state = {
-      isCreatingElection: false
+      isCreatingElection: false,
+      loadingText: 'Deploying Election contract...'
     };
   }
 
@@ -51,6 +57,24 @@ class CreateElectionForm extends Component {
       .value;
 
     try {
+      await deployElectionContract();
+
+      this.setState({
+        loadingText: 'Deploying ElectionRegistry contract...'
+      });
+
+      await deployElectionRegistryContract();
+
+      this.setState({
+        loadingText: 'Setting backend contract...'
+      });
+
+      await setBackend();
+
+      this.setState({
+        loadingText: 'Creating election...'
+      });
+
       await createElection(name, description);
 
       this.setState({ isCreatingElection: false });
@@ -73,7 +97,7 @@ class CreateElectionForm extends Component {
           </RightAlignedButton>
 
           {this.state.isCreatingElection && (
-            <SpinnerWithInfo info={'Creating election...'} />
+            <SpinnerWithInfo info={this.state.loadingText} />
           )}
         </Form>
       </Fragment>

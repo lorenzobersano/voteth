@@ -6,7 +6,11 @@ import electionArtifact from './../../build/contracts/Election.json';
 import electionRegistryArtifact from './../../electionRegistryAbi/ElectionRegistry.json';
 
 export let electionAddress;
-let electionInstance, web3Provider, ElectionRegistry, ElectionEventWatcher;
+let electionInstance,
+  currentElectionRegistry,
+  web3Provider,
+  ElectionRegistry,
+  ElectionEventWatcher;
 const Election = Contract(electionArtifact);
 
 if (typeof web3 !== 'undefined') {
@@ -41,6 +45,7 @@ const initializeElectionAddressAndInstance = async backendAddress => {
 export const getElectionCurrentInstance = registryAddress => {
   return new Promise((resolve, reject) => {
     const instance = ElectionRegistry.at(registryAddress);
+    currentElectionRegistry = registryAddress;
 
     instance.backendContract(async (err, backendContract) => {
       if (err) reject(err);
@@ -100,7 +105,8 @@ export const checkIfStopped = () => {
 
 export const changeBackend = (newBackendAddress, sender) => {
   return new Promise((resolve, reject) => {
-    const instance = ElectionRegistry.at(deployedRegistry.address);
+    const instance = ElectionRegistry.at(currentElectionRegistry);
+
     instance.changeBackend(
       newBackendAddress,
       { from: sender },

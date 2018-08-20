@@ -63,7 +63,10 @@ ReactDOM.render(
           path="requestVerification"
           component={UserIsAuthenticated(RequestVerification)}
         />
-        <Route path="createElection" component={CreateElectionForm} />
+        <Route
+          path="createElection"
+          component={checkIfMetaMaskIsEnabled(CreateElectionForm)}
+        />
         <Route path="profile" component={UserIsAuthenticated(Profile)} />
       </Route>
     </Router>

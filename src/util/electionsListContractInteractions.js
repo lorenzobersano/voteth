@@ -4,8 +4,11 @@ import electionsListArtifact from './../../build/contracts/ElectionsList.json';
 import electionRegistryArtifact from './../../electionRegistryAbi/ElectionRegistry.json';
 import electionArtifact from './../../build/contracts/Election.json';
 
-export let electionAddress;
-let electionsListInstance, web3Provider, ElectionRegistry;
+let electionInstance,
+  electionRegistryInstance,
+  electionsListInstance,
+  sender,
+  ElectionRegistry;
 
 const ElectionsList = Contract(electionsListArtifact);
 const Election = Contract(electionArtifact);
@@ -14,6 +17,7 @@ if (typeof web3 !== 'undefined') {
   ElectionsList.setProvider(web3.currentProvider);
   ElectionRegistry = web3.eth.contract(electionRegistryArtifact.abi);
   Election.setProvider(web3.currentProvider);
+  sender = web3.eth.accounts[0];
 } else {
   // set the provider you want from Web3.providers
   // web3Provider = new Web3.providers.HttpProvider('http://localhost:8545');
@@ -80,50 +84,72 @@ export const getElectionAt = pos => {
   });
 };
 
-export const createElection = (name, description) => {
+export const deployElectionContract = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const sender = web3.eth.accounts[0];
+      console.log(sender);
 
-      const electionsListInstance = await ElectionsList.deployed();
-
-      const electionInstance = await Election.new({ from: sender });
-
+      electionInstance = await Election.new({ from: sender });
       Election.link('strings', '0xdb348eac1990e5d2e844a10d56921a5e9ef17df5');
 
+      resolve(electionInstance);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export const deployElectionRegistryContract = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
       ElectionRegistry.new(
         {
           from: sender,
           data: electionRegistryArtifact.bytecode
         },
-        (err, electionRegistryInstance) => {
+        (err, electionRegistryResult) => {
           if (err) reject(err);
 
-          if (electionRegistryInstance.address)
-            electionRegistryInstance.changeBackend(
-              electionInstance.address,
-              {
-                from: sender
-              },
-              async (err, res) => {
-                if (err) reject(err);
+          if (electionRegistryResult.address) {
+            electionRegistryInstance = electionRegistryResult;
 
-                console.log('Backend successfully set!');
-
-                console.log(electionRegistryInstance);
-
-                const result = await electionsListInstance.createElection(
-                  name,
-                  description,
-                  electionRegistryInstance.address,
-                  { from: sender }
-                );
-
-                resolve(result);
-              }
-            );
+            resolve(electionRegistryInstance);
+          }
         }
       );
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+export const setBackend = () => {
+  return new Promise((resolve, reject) => {
+    electionRegistryInstance.changeBackend(
+      electionInstance.address,
+      { from: sender },
+      async (err, result) => {
+        if (err) reject(err);
+
+        resolve(result);
+      }
+    );
+  });
+};
+
+export const createElection = (name, description) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const electionsListInstance = await ElectionsList.deployed();
+
+      const result = await electionsListInstance.createElection(
+        name,
+        description,
+        electionRegistryInstance.address,
+        { from: sender }
+      );
+
+      resolve(result);
     } catch (e) {
       reject(e);
     }

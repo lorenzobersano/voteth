@@ -63,7 +63,11 @@ class Home extends Component {
       <Fragment>
         <h2>Elections</h2>
         {this.state.elections ? (
-          this.state.elections
+          this.state.elections.length !== 0 ? (
+            this.state.elections
+          ) : (
+            <p>No elections available, be the first to create one!</p>
+          )
         ) : (
           <SpinnerWithInfo info={'Loading elections...'} />
         )}

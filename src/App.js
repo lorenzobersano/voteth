@@ -141,7 +141,7 @@ class App extends Component {
           <Container>
             <Header mainPage={true} />
             {(this.props.children.type.name === 'Home' ||
-              this.props.children.type.name === 'CreateElectionForm') &&
+              this.props.children.type.name === 'MetaMaskHOC') &&
               this.props.children}
           </Container>
         )}
