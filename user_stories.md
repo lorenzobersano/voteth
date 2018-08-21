@@ -11,15 +11,15 @@ Giving a simple name and description to the election, any MetaMask user can crea
 The creator and administrator of the election sets the start and end time of the election, then he can add candidates, which have a profile picture, a name, a party and a political program.
 
 Normally the election admin shouldn't have the possibility to change the election start and end time once set, but because this is just a demonstration I decided
-to make it so in order to test faster the different phases of the election.
+to make it so in order to test the different phases of the election faster.
 
 ### Verifies voters
 
-Until the election has not started, the administrator can receive verification requests by users: only verified voters can vote. A verification request contains an identification document of the user, so that the administrator can check if the requester is effectively who he tells he is.
+Until the election has not started, the administrator can receive verification requests by users: only verified voters can vote. A verification request contains an identification document and a photo of the user, so that the administrator can check if the requester is effectively who he tells he is.
 
 ### Puts Election contract in emergency stop
 
-The administrator can put the Election contract in emergency stop if any bug is discovered. When the fixed contract is deployed he can set its address as the current backend in the Election registry, so the election can restart.
+The administrator can put the Election contract in emergency stop if any bug or problem is discovered. When the fixed contract is deployed he can set its address as the current backend in the Election registry, so the election can restart.
 
 ## Election participant
 
