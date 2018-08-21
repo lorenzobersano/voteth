@@ -22,6 +22,8 @@ In the future votΞ will change in order to achieve more anonimity, maybe taking
 First of all `node_modules` need to be installed and smart contracts need to be compiled, so open your terminal and type `npm install`.
 <br/>
 Once it has finished run `truffle compile` to compile votΞ's smart contracts.
+<br/>
+Once they are compiled, smart contracts must be deployed to Rinkeby, you can find out how to do it in the next section.
 
 Finally, run `npm start` in order to spin up a dev server.
 
