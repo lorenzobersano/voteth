@@ -130,7 +130,19 @@ export const setBackend = () => {
       async (err, result) => {
         if (err) reject(err);
 
-        resolve(result);
+        if (result !== false) {
+          const backendChangedEvent = electionRegistryInstance.BackendChanged(
+            { newBackend: electionInstance.address },
+            { fromBlock: 'latest', toBlock: 'latest' }
+          );
+
+          backendChangedEvent.watch((err, res) => {
+            if (err) reject(err);
+
+            backendChangedEvent.stopWatching();
+            resolve(res);
+          });
+        } else resolve(result);
       }
     );
   });

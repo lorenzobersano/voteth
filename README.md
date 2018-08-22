@@ -29,7 +29,7 @@ Finally, run `npm start` in order to spin up a dev server.
 
 ## How to deploy your own votΞ instance
 
-In order to deploy a new votΞ instance you have to use `truffle migrate --network rinkeby` which deploys to Rinkeby: make sure to have some testnet Ether in the deploying account (you can get it from [here](https://faucet.rinkeby.io/)) and paste its mnemonic in your .env file (create in the root of the project), create an account on Infura and get your API key (keep it secret, copy it in your .env file).
+In order to deploy a new votΞ instance you have to use `truffle migrate --network rinkeby` which deploys to Rinkeby: make sure to have some testnet Ether in the deploying account (you can get it from [here](https://faucet.rinkeby.io/)) and paste its mnemonic in your .env file (create it in the root of the project), create an account on Infura and get your API key (keep it secret, copy it in your .env file).
 
 ## How to test contracts
 

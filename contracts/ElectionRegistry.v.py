@@ -1,7 +1,9 @@
 backendContract: public(address)
-previousBackends: address[127000] # temporary solution with ridicolously high size, as Vyper still does not support dynamically-sized arrays
+previousBackends: address[256] # temporary solution with ridicolously high size, as Vyper still does not support dynamically-sized arrays
 numOfPreviousBackends: int128
 owner: public(address)
+
+BackendChanged: event({newBackend: address})
 
 @public
 def __init__():
@@ -18,6 +20,7 @@ def changeBackend(_newBackend: address) -> bool:
         self.previousBackends[self.numOfPreviousBackends] = self.backendContract
         self.backendContract = _newBackend
         self.numOfPreviousBackends = self.numOfPreviousBackends + 1
+        log.BackendChanged(_newBackend)
         return True
     return False
     

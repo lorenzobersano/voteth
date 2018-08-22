@@ -113,13 +113,27 @@ export const changeBackend = (newBackendAddress, sender) => {
       async (err, result) => {
         if (err) reject(err);
 
-        const res = await toggleCircuitBreaker(sender);
+        if (result !== false) {
+          const backendChangedEvent = instance.BackendChanged(
+            { newBackend: newBackendAddress },
+            { fromBlock: 'latest', toBlock: 'latest' }
+          );
 
-        console.log(res);
+          backendChangedEvent.watch(async (err, res) => {
+            if (err) reject(err);
 
-        await initializeElectionAddressAndInstance(newBackendAddress);
+            backendChangedEvent.stopWatching();
 
-        resolve(result);
+            await toggleCircuitBreaker(sender);
+            await initializeElectionAddressAndInstance(newBackendAddress);
+
+            resolve();
+          });
+        } else {
+          await toggleCircuitBreaker(sender);
+          await initializeElectionAddressAndInstance(newBackendAddress);
+          resolve(result);
+        }
       }
     );
   });
