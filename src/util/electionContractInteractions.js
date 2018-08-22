@@ -127,7 +127,7 @@ export const changeBackend = (newBackendAddress, sender) => {
             await toggleCircuitBreaker(sender);
             await initializeElectionAddressAndInstance(newBackendAddress);
 
-            resolve();
+            resolve(true);
           });
         } else {
           await toggleCircuitBreaker(sender);
