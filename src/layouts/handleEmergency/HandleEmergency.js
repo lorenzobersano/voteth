@@ -4,27 +4,17 @@ import Switch from '@material-ui/core/Switch';
 import swal from 'sweetalert2';
 import { isAddress } from 'web3-utils';
 
-import { SpinnerWithInfo } from './../Spinner';
-import Label from './../label/Label';
-import Form from './../form/Form';
-import RightAlignedButton from './../rightAlignedButton/RightAlignedButton';
 import {
   checkIfStopped,
   changeBackend,
   toggleCircuitBreaker
 } from '../../util/electionContractInteractions';
 
-const TextBox = styled.input`
-  outline: none;
-  border: none;
-  width: 100%;
-  font-size: 1.5em;
-  border-radius: 4px;
-`;
-
-const submitButtonStyle = {
-  marginTop: '0.5rem'
-};
+import { SpinnerWithInfo } from './../Spinner';
+import Label from './../label/Label';
+import Form from './../form/Form';
+import RightAlignedButton from './../rightAlignedButton/RightAlignedButton';
+import { TextBox, TextBoxContainer } from './../textBox/TextBox';
 
 class HandleEmergency extends Component {
   constructor(props) {
@@ -147,22 +137,23 @@ class HandleEmergency extends Component {
               }
             />
           )}
-          <Label htmlFor="electionAddress">
-            Fixed Election contract address
-          </Label>
-          <TextBox
-            type="text"
-            disabled={!this.state.isStopped}
-            name="electionAddress"
-            required
-          />
-          <RightAlignedButton
-            style={submitButtonStyle}
-            disabled={!this.state.isStopped}
-            type="submit"
-          >
-            Submit
-          </RightAlignedButton>
+
+          {this.state.isStopped && [
+            <Label htmlFor="electionAddress">
+              Fixed Election contract address
+            </Label>,
+            <TextBoxContainer>
+              <TextBox type="text" name="electionAddress" required />
+            </TextBoxContainer>,
+
+            <RightAlignedButton
+              style={{ marginTop: '0.5rem' }}
+              disabled={!this.state.isStopped}
+              type="submit"
+            >
+              Submit
+            </RightAlignedButton>
+          ]}
 
           {this.state.isChangingBackendContract && (
             <SpinnerWithInfo info={'Changing backend contract...'} />

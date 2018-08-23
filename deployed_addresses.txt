@@ -1,1 +1,1 @@
-ElectionsList: 0x16c3a31eae8db263dae3f949f610c625f6c53351
+ElectionsList: 0x58c80223d99dfe8319c06eb90f40ae0ee22f77ad

@@ -11,21 +11,14 @@ import Form from './../form/Form';
 import RightAlignedButton from './../rightAlignedButton/RightAlignedButton';
 import { SpinnerWithInfo } from '../Spinner';
 import checkIfMetaMaskIsEnabled from '../../util/checkIfMetaMaskIsEnabled';
-
-const TextBox = styled.input`
-  outline: none;
-  border: none;
-  width: 100%;
-  font-size: 1.5em;
-  border-radius: 4px;
-`;
+import { TextBoxContainer, TextBox } from '../textBox/TextBox';
 
 const TextArea = styled.textarea`
   outline: none;
   border: none;
   width: 100%;
   resize: vertical;
-  font-size: 1.5em;
+  font-family: inherit;
   border-radius: 4px;
 `;
 
@@ -123,9 +116,13 @@ class AddCandidateForm extends Component {
         !this.state.electionTimeRangeNotConfigured ? (
           <Form onSubmit={this.handleSubmit}>
             <Label htmlFor="name">Name</Label>
-            <TextBox type="text" name="name" required />
+            <TextBoxContainer>
+              <TextBox type="text" name="name" required />
+            </TextBoxContainer>
             <Label htmlFor="party">Party</Label>
-            <TextBox type="text" name="party" required />
+            <TextBoxContainer>
+              <TextBox type="text" name="party" required />
+            </TextBoxContainer>
             <Label htmlFor="politicalProgram">Political program</Label>
             <TextArea name="politicalProgram" required />
             <Label htmlFor="pic">Candidate pic</Label>

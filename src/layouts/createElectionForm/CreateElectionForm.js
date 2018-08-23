@@ -9,20 +9,14 @@ import {
   setBackend
 } from '../../util/electionsListContractInteractions';
 
+import checkIfMetaMaskIsEnabled from '../../util/checkIfMetaMaskIsEnabled';
+
 import Container from './../container/Container';
 import Label from './../label/Label';
 import Form from './../form/Form';
 import RightAlignedButton from './../rightAlignedButton/RightAlignedButton';
 import { SpinnerWithInfo } from '../Spinner';
-import checkIfMetaMaskIsEnabled from '../../util/checkIfMetaMaskIsEnabled';
-
-const TextBox = styled.input`
-  outline: none;
-  border: none;
-  width: 100%;
-  font-size: 1.5em;
-  border-radius: 4px;
-`;
+import { TextBoxContainer, TextBox } from '../textBox/TextBox';
 
 const TextArea = styled.textarea`
   outline: none;
@@ -89,9 +83,13 @@ class CreateElectionForm extends Component {
         <h2>Create election</h2>
         <Form onSubmit={this.handleSubmit}>
           <Label htmlFor="name">Name</Label>
-          <TextBox type="text" name="name" required />
+          <TextBoxContainer>
+            <TextBox type="text" name="name" required />
+          </TextBoxContainer>
           <Label htmlFor="description">Description</Label>
-          <TextBox type="text" name="description" required />
+          <TextBoxContainer>
+            <TextBox type="text" name="description" required />
+          </TextBoxContainer>
           <RightAlignedButton style={{ marginTop: '1rem' }} type="submit">
             Create election
           </RightAlignedButton>

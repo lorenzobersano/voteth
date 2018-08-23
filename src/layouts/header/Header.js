@@ -150,7 +150,9 @@ export default class Header extends Component {
           </Links>
         ) : (
           <Links>
-            <NavLink to="/createElection">Create election</NavLink>
+            <NavLink style={{ paddingRight: 0 }} to="/createElection">
+              Create election
+            </NavLink>
           </Links>
         )}
       </Navbar>
