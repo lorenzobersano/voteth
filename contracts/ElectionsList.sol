@@ -2,7 +2,16 @@ pragma solidity ^0.4.24;
 
 /** @title ElectionsList: keeps a list of ElectionRegistry contracts with name and description of election */
 contract ElectionsList {
+
+    modifier onlyOwner(uint _pos) {
+        require(msg.sender == elections[_pos].creator, "The sender of the tx must be the owner of the election to execute this function");
+        _;
+    }
+
+    event ElectionDeleted(uint _pos);
+    
     struct Election {
+        address creator;
         string  name;
         string  description;
         address electionRegistryAddress;
@@ -23,7 +32,20 @@ contract ElectionsList {
     *   @param _electionRegistryAddress Address of the ElectionRegistry of the Election
     */
     function createElection(string _name, string _description, address _electionRegistryAddress) public {
-        elections.push(Election(_name, _description, _electionRegistryAddress));
+        elections.push(Election(msg.sender, _name, _description, _electionRegistryAddress));
+    }
+
+    /** @dev                 Removes the Election from the list of elections at a specified index
+     *  @param  _position    Position in the list of elections
+     */
+    function removeElectionAt(uint _position) public onlyOwner(_position) {
+        for (uint i = _position; i < elections.length - 1; i++) {
+            elections[i] = elections[i + 1];
+        }
+
+        elections.length--;
+
+        emit ElectionDeleted(_position);
     }
 
     // This is just in case someone accidentally sends Ether to this contract

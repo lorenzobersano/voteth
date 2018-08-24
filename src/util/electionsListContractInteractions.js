@@ -83,6 +83,19 @@ export const getElectionAt = pos => {
   });
 };
 
+export const removeElectionAt = (pos, sender) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const instance = await ElectionsList.deployed();
+      await instance.removeElectionAt(pos, { from: sender });
+
+      resolve();
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 export const deployElectionContract = () => {
   return new Promise(async (resolve, reject) => {
     try {

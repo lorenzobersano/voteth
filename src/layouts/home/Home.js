@@ -35,6 +35,14 @@ class Home extends Component {
     this.isCancelled = true;
   }
 
+  deleteElection = indexToDelete => {
+    this.setState(({ elections }) => ({
+      elections: elections.filter(
+        election => parseInt(election.key) !== indexToDelete
+      )
+    }));
+  };
+
   async getElections() {
     try {
       let elections = [];
@@ -42,12 +50,17 @@ class Home extends Component {
       for (let i = 0; i < numOfElections.toNumber(); i++) {
         const election = await getElectionAt(i);
 
+        const currentAccount = window.web3.eth.accounts[0];
+
         elections.push(
           <Election
-            name={election[0]}
-            description={election[1]}
-            electionContract={election[2]}
+            name={election[1]}
+            description={election[2]}
+            electionContract={election[3]}
             key={i}
+            index={i}
+            owner={currentAccount === election[0] ? currentAccount : null}
+            delete={this.deleteElection.bind(this, i)}
           />
         );
       }
