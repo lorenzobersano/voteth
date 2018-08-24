@@ -9,7 +9,7 @@ import {
   getVerificationState,
   checkIfUserHasRequestedVerification
 } from './../../util/electionContractInteractions';
-import { uploadToIPFS } from './../../util/ipfsUtils';
+import { uploadToIPFS, ipfsHashToBytes32 } from './../../util/ipfsUtils';
 import { SpinnerWithInfo } from './../Spinner';
 
 // UI Components
@@ -88,7 +88,16 @@ class RequestVerification extends Component {
       try {
         !this.isCancelled && this.setState({ isUploadingOnIpfs: true });
 
-        const picHash = await uploadToIPFS(this.state.image);
+        const profilePicUrl = this.props.authData.avatar.uri;
+        const profilePicUrlSubstring = profilePicUrl.substring(
+          profilePicUrl.length - 46,
+          profilePicUrl.length
+        );
+
+        console.log(profilePicUrlSubstring);
+
+        const profilePicHash = ipfsHashToBytes32(profilePicUrlSubstring);
+        const documentPicHash = await uploadToIPFS(this.state.image);
 
         !this.isCancelled && this.setState({ isUploadingOnIpfs: false });
 
@@ -100,8 +109,8 @@ class RequestVerification extends Component {
 
         await requestVerification(
           this.props.authData.name,
-          this.props.authData.avatar.uri,
-          picHash,
+          profilePicHash,
+          documentPicHash,
           this.props.authData.address
         );
 

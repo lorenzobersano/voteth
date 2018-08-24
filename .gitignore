@@ -3,3 +3,4 @@ scripts
 .env
 build
 config
+dist

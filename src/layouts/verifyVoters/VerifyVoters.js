@@ -5,7 +5,7 @@ import {
   getNumberOfVerificationRequests,
   getVerificationRequestAt
 } from '../../util/electionContractInteractions';
-import { resolveIPFSHash } from './../../util/ipfsUtils';
+import { resolveIPFSHash, bytes32ToIPFSHash } from './../../util/ipfsUtils';
 
 import VerificationRequest from './../verificationRequest/VerificationRequest';
 import { SpinnerWithInfo } from '../Spinner';
@@ -56,7 +56,7 @@ class VerifyVoters extends Component {
   async getAllVerificationRequests() {
     let numOfVerificationRequests;
     let i;
-    let verificationRequest, docPic;
+    let verificationRequest, docPic, profilePic;
     let verificationRequests = [];
 
     try {
@@ -77,12 +77,10 @@ class VerifyVoters extends Component {
             this.props.authData.address
           );
 
-          docPic = await resolveIPFSHash(
-            verificationRequest[3].substring(
-              1,
-              verificationRequest[3].length - 1
-            )
-          );
+          console.log(verificationRequest);
+
+          profilePic = await resolveIPFSHash(verificationRequest[2]);
+          docPic = await resolveIPFSHash(verificationRequest[3]);
 
           verificationRequests.push(
             <VerificationRequest
@@ -91,7 +89,7 @@ class VerifyVoters extends Component {
                 1,
                 verificationRequest[1].length - 1
               )}
-              voterPic={verificationRequest[2]}
+              voterPic={profilePic}
               documentPic={docPic}
               key={i}
               index={i}

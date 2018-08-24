@@ -111,12 +111,7 @@ class VerificationRequest extends Component {
     return (
       <Card>
         <Voter>
-          <Avatar
-            src={this.props.voterPic.substring(
-              1,
-              this.props.voterPic.length - 1
-            )}
-          />
+          <Avatar src={this.props.voterPic} />
           <Name>{this.props.name}</Name>
         </Voter>
         <p>Identification Document</p>

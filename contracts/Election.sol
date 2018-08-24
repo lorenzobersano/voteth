@@ -58,17 +58,17 @@ contract Election {
     event CircuitBreakerToggled(bool _status);
 
     struct Candidate {
-        string imageHash;
-        string name;
-        string party;
-        string politicalProgram;
+        bytes32 imageHash;
+        string  name;
+        string  party;
+        string  politicalProgram;
     }
 
     struct VerificationRequest {
         address requester;
         string  requesterName;
-        string  requesterPicIPFSHash;
-        string  votingDocumentIPFSHash;
+        bytes32 requesterPicIPFSHash;
+        bytes32 votingDocumentIPFSHash;
     }
 
     mapping (address => bool)       public  voterHasCommittedVote;
@@ -109,7 +109,7 @@ contract Election {
      *  @param _party            Party of the Candidate
      *  @param _politicalProgram The program of the Candidate
      */
-    function addCandidate(string _imageHash, string _name, string _party, string _politicalProgram) public onlyOwner electionIsNotOpenedYet {
+    function addCandidate(bytes32 _imageHash, string _name, string _party, string _politicalProgram) public onlyOwner electionIsNotOpenedYet {
         candidates.push(Candidate(_imageHash, _name, _party, _politicalProgram));
 
         emit CandidateAdded(_name, _party, _politicalProgram);
@@ -161,7 +161,7 @@ contract Election {
      *  @param  _requesterPicIPFSHash    The hash of the requester uPort pic stored on IPFS
      *  @param  _votingDocumentIPFSHash  The hash of the document needed to verify the user stored on IPFS
      */
-    function requestVerification (string _requesterName, string _requesterPicIPFSHash, string _votingDocumentIPFSHash) 
+    function requestVerification (string _requesterName, bytes32 _requesterPicIPFSHash, bytes32 _votingDocumentIPFSHash) 
         public electionIsNotOpenedYet stopInEmergency {
         verificationRequests.push(VerificationRequest(msg.sender, _requesterName, _requesterPicIPFSHash, _votingDocumentIPFSHash));
 
