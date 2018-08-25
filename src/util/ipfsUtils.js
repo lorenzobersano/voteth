@@ -1,9 +1,9 @@
-import IpfsApi from 'ipfs-api';
-import bs58 from 'bs58';
+const IpfsApi = require('ipfs-api');
+const bs58 = require('bs58');
 
 const ipfs = IpfsApi({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
 
-export const ipfsHashToBytes32 = hash => {
+const ipfsHashToBytes32 = hash => {
   const h = bs58
     .decode(hash)
     .toString('hex')
@@ -17,12 +17,12 @@ export const ipfsHashToBytes32 = hash => {
   return '0x' + h;
 };
 
-export const bytes32ToIPFSHash = hashHex => {
+const bytes32ToIPFSHash = hashHex => {
   const buf = new Buffer(hashHex.replace(/^0x/, '1220'), 'hex');
   return bs58.encode(buf);
 };
 
-export const uploadToIPFS = buffer => {
+const uploadToIPFS = buffer => {
   return new Promise(async (resolve, reject) => {
     let result;
 
@@ -35,7 +35,7 @@ export const uploadToIPFS = buffer => {
   });
 };
 
-export const resolveIPFSHash = hash => {
+const resolveIPFSHash = hash => {
   return new Promise(async (resolve, reject) => {
     try {
       resolve(`https://ipfs.io/ipfs/${bytes32ToIPFSHash(hash)}`);
@@ -43,4 +43,11 @@ export const resolveIPFSHash = hash => {
       reject(error);
     }
   });
+};
+
+module.exports = {
+  ipfsHashToBytes32,
+  bytes32ToIPFSHash,
+  uploadToIPFS,
+  resolveIPFSHash
 };

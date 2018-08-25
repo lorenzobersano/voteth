@@ -1,13 +1,17 @@
 const Election = artifacts.require('./Election.sol');
 const ElectionsList = artifacts.require('./ElectionsList.sol');
 const soliditySha3 = require('web3-utils').soliditySha3;
+const {
+  ipfsHashToBytes32,
+  bytes32ToIPFSHash
+} = require('./../src/util/ipfsUtils');
 
 const electionName = 'Test name',
   electionDescription = 'Test description',
   candidateName = 'Test Candidate',
   candidateParty = 'Test Party',
   candidatePoliticalProgram = 'Test program',
-  candidateIPFSHash = 'Test IPFS hash';
+  candidateIPFSHash = 'QmThrWZhGxEyfpdXKkS4C2mMrGSfL9uHszarBAjty25SQR'; // Test IPFS Hash
 
 let electionInstance, electionsListInstance;
 
@@ -27,33 +31,54 @@ Election.deployed()
  */
 
 contract('ElectionList', accounts => {
+  const electionOwner = accounts[0];
+
   it('should create and get an election', async () => {
     try {
       await electionsListInstance.createElection(
         electionName,
         electionDescription,
-        electionInstance.address
+        electionInstance.address,
+        { from: electionOwner }
       );
 
       const election = await electionsListInstance.elections(0);
 
       assert.equal(
         election[0],
+        electionOwner,
+        'The owner of the Election is incorrect.'
+      );
+
+      assert.equal(
+        election[1],
         electionName,
         'The name of the Election is incorrect.'
       );
 
       assert.equal(
-        election[1],
+        election[2],
         electionDescription,
         'The description of the Election is incorrect.'
       );
 
       assert.equal(
-        election[2],
+        election[3],
         electionInstance.address,
         'The address of the Election is incorrect.'
       );
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  it('should delete an election at a given position', async () => {
+    try {
+      await electionsListInstance.removeElectionAt(0, { from: electionOwner });
+
+      const electionNum = await electionsListInstance.getNumOfElections();
+
+      assert.equal(electionNum, 0, 'The election has not been deleted.');
     } catch (error) {
       console.log(error);
     }
@@ -96,7 +121,7 @@ contract('Election', accounts => {
   it('should add a Candidate', async () => {
     try {
       await electionInstance.addCandidate(
-        candidateIPFSHash,
+        ipfsHashToBytes32(candidateIPFSHash),
         candidateName,
         candidateParty,
         candidatePoliticalProgram,
@@ -106,7 +131,7 @@ contract('Election', accounts => {
       const candidate = await electionInstance.candidates(0);
 
       assert.equal(
-        candidate[0],
+        bytes32ToIPFSHash(candidate[0]),
         candidateIPFSHash,
         'The IPFS hash of the candidate picture is incorrect.'
       );
@@ -136,14 +161,15 @@ contract('Election', accounts => {
   it('should create a VerificationRequest', async () => {
     const requesterAddress = accounts[0],
       requesterName = 'Test requester',
-      requesterPicIPFSHash = 'Test requester pic',
-      requesterDocumentIPFSHash = 'Test IPFS hash';
+      requesterPicIPFSHash = 'QmZVWoyMPmwLZCZkqS5bXqazBmowtBcDL34ScRUmhs9hHT',
+      requesterDocumentIPFSHash =
+        'QmZVWoyMPmwLZCZkqS5bXqazBmowtBcDL34ScRUmhs9hHT';
 
     try {
       await electionInstance.requestVerification(
         requesterName,
-        requesterPicIPFSHash,
-        requesterDocumentIPFSHash,
+        ipfsHashToBytes32(requesterPicIPFSHash),
+        ipfsHashToBytes32(requesterDocumentIPFSHash),
         { from: requesterAddress }
       );
 
@@ -164,13 +190,13 @@ contract('Election', accounts => {
       );
 
       assert.equal(
-        verificationRequest[2],
+        bytes32ToIPFSHash(verificationRequest[2]),
         requesterPicIPFSHash,
         'The IPFS hash of the requester pic is incorrect.'
       );
 
       assert.equal(
-        verificationRequest[3],
+        bytes32ToIPFSHash(verificationRequest[3]),
         requesterDocumentIPFSHash,
         'The IPFS hash of the requester document is incorrect.'
       );
@@ -206,15 +232,16 @@ contract('Election', accounts => {
   it('should delete a given verification request', async () => {
     const requesterAddress = accounts[1],
       requesterName = 'Test requester 2',
-      requesterPicIPFSHash = 'Test requester pic 2',
-      requesterDocumentIPFSHash = 'Test IPFS hash 2',
+      requesterPicIPFSHash = 'QmZVWoyMPmwLZCZkqS5bXqazBmowtBcDL34ScRUmhs9hHT',
+      requesterDocumentIPFSHash =
+        'QmZVWoyMPmwLZCZkqS5bXqazBmowtBcDL34ScRUmhs9hHT',
       posOfTheVerificationRequestToDelete = 0;
 
     try {
       await electionInstance.requestVerification(
         requesterName,
-        requesterPicIPFSHash,
-        requesterDocumentIPFSHash,
+        ipfsHashToBytes32(requesterPicIPFSHash),
+        ipfsHashToBytes32(requesterDocumentIPFSHash),
         { from: requesterAddress }
       );
 
