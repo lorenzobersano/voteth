@@ -72,7 +72,17 @@ contract('ElectionList', accounts => {
     }
   });
 
-  it('should delete an election at a given position', async () => {
+  it('should not delete an election at a given position if not creator of election', async () => {
+    try {
+      await electionsListInstance.removeElectionAt(0, { from: accounts[1] });
+    } catch (error) {
+      const electionNum = await electionsListInstance.getNumOfElections();
+
+      assert.equal(electionNum, 1, 'The election has been deleted.');
+    }
+  });
+
+  it('should delete an election at a given position if creator of election', async () => {
     try {
       await electionsListInstance.removeElectionAt(0, { from: electionOwner });
 
