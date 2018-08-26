@@ -48,7 +48,7 @@ class ElectionHome extends Component {
   componentDidMount() {
     if (this.props.authData && isMNID(this.props.authData.address))
       this.checkVoterState();
-    this.getAllCandidates(this.props.electionTimeRange);
+    else this.getAllCandidates(this.props.electionTimeRange);
   }
 
   componentWillUnmount() {
@@ -76,6 +76,8 @@ class ElectionHome extends Component {
           voterHasRevealedVote,
           userAddress: this.props.authData.address
         });
+
+      this.getAllCandidates(this.props.electionTimeRange);
     } catch (e) {
       console.log(e);
     }
