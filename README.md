@@ -36,3 +36,9 @@ In order to deploy a new votΞ instance you have to use `truffle migrate --netwo
 In order to test the contracts, `ganache-cli` and `truffle` are needed: if you don't have them installed yet, run `npm i -g ganache-cli truffle` to install them globally on your machine.
 
 Once they are installed open two instances of your terminal: in the first one run `ganache-cli`, in the other one run `truffle compile` to compile the Solidity contracts, then run `truffle migrate` to deploy the contracts to the local test simulated blockchain and finally run `truffle test` to run the JavaScript tests for the contracts.
+
+### Documents
+
+- [Deployed address](https://github.com/lorenzobersano/voteth/blob/master/deployed_addresses.txt)
+- [Design pattern decisions](https://github.com/lorenzobersano/voteth/blob/master/design_pattern_decisions.md)
+- [Avoiding common attacks](https://github.com/lorenzobersano/voteth/blob/master/avoiding_common_attacks.md)

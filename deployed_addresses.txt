@@ -1,1 +1,3 @@
 ElectionsList: 0x10d92902daf0f54b57f5af78a8fde31d54663d01
+
+Election and ElectionRegistry are deployed each time when creating an Election.
