@@ -5,7 +5,7 @@ module.exports = merge(common, {
   mode: 'development',
   devServer: {
     host: 'localhost',
-    port: process.env.PORT || 3000,
+    port: 3000,
     open: true
   }
 });
