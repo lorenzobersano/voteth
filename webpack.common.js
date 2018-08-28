@@ -4,9 +4,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
 
 module.exports = {
-  entry: {
-    main: ['babel-polyfill', './src/index.js']
-  },
+  entry: ['babel-polyfill', './src/index.js'],
   output: {
     filename: '[name].[hash].js',
     path: path.resolve('./dist')
@@ -16,7 +14,7 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: path.resolve(__dirname, 'node_modules'),
-        use: [{ loader: 'babel-loader' }]
+        loader: 'babel-loader'
       },
       {
         test: /\.css$/,
@@ -33,13 +31,10 @@ module.exports = {
     ]
   },
   plugins: [
-    new HtmlWebpackPlugin(
-      {
-        template: path.join(__dirname, 'public', 'index.html'),
-        minify: true
-      },
-      new CleanWebpackPlugin(['dist'])
-    ),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, 'public', 'index.html')
+    }),
+    new CleanWebpackPlugin(['dist']),
     new Dotenv()
   ]
 };
